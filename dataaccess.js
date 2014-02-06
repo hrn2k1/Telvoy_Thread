@@ -8,6 +8,7 @@ var monk = require('monk');
  var parser=require('./parser.js');
  var mimelib = require("mimelib-noiconv");
 
+var debug = config.IS_DEBUG_MODE;
 
 function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
@@ -232,8 +233,11 @@ function PushNotification(notificationRemainderTime)
     }
     else
     {
+      if(debug==true)
+      {
       utility.log("eligible invitations for push");
       console.log(invites);
+      }
       var pushInfo = [];
       for (var i = 0; i < invites.length; i++) {
          
@@ -250,8 +254,11 @@ function PushNotification(notificationRemainderTime)
             }
             else
             {
+              if(debug==true)
+              {
               utility.log("eligible invitees for push");
               console.log(invitees);
+              }
 
               for (var j = 0; j < invitees.length; j++) {
                 
@@ -265,8 +272,11 @@ function PushNotification(notificationRemainderTime)
                   }
                   else
                   {
+                    if(debug==true)
+                    {
                     utility.log('Invitees Push URL Info' );
                     console.log(registrations);
+                    }
                     // console.log("Inv ID: "+invites[i]._id);
                     // console.log(invitees[j]);
                     // console.log(registrations); RemainderMinute
@@ -276,7 +286,7 @@ function PushNotification(notificationRemainderTime)
                         //console.log(pushInfo);
                       var RemainderMinute = registrations.RemainderMinute;
                       var md = minutesDiff( pushInfo["InvTime"],new Date());
-                      utility.log("meeting remaining minute: "+md);
+                      utility.log("meeting "+pushInfo["Subject"]+" remaining minute: "+md);
                       //console.log(md);
                       if(md <= RemainderMinute){
                         pushInfo["PushUrl"] = registrations.Handle;
