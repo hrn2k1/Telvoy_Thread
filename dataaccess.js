@@ -102,7 +102,32 @@ function insertInvitationEntity(entity,addresses)
       }
       else{
         utility.log("Invitation already exist for AccessCode: "+result_invite.AccessCode);
-        //Invitations.update({"_id":result_invite._id}, {$set:entity}, function(error,result){});
+        Invitations.update({"_id":result_invite._id}, {$set:entity}, function(error,result){
+          if(error)
+          {
+            utility.log("update error in insertInvitationEntity() error: " + error, 'ERROR');
+            connection.close();
+          }
+          else
+          {
+            utility.log('update invitation result.........');
+            console.log(result);
+            utility.log("Invitation updated Successfully");
+            Invitees.remove({Invitations_id:result_invite._id},function(err,res){
+              if(err){
+              utility.log("delete error in insertInvitationEntity() error: " + error, 'ERROR');
+              connection.close();
+              }
+              else{
+                utility.log('deleted all previous invitees.')
+                 InsertMeetingInvitees(EmailAddresses,Invitees,result_invite._id,addresses,0,null);
+              }
+            });
+           
+            //connection.close();  
+            
+          }
+        });
       }
     }
   });
