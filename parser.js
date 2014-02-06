@@ -92,7 +92,7 @@ function parseBody(mail)
     out["subject"] = mail.subject;
     
 
-    return ou
+    return out;
 
     /*
     if ( mail.inReplyTo ) {
