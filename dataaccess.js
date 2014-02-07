@@ -227,8 +227,128 @@ function minutesDiff(start, end){
 }
 
 /// Method to send/push notification to MPNS
-
 function PushNotification(notificationRemainderTime)
+{
+
+
+  mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+
+  var Invitations = connection.collection('Invitations');
+  var Invitees = connection.collection('Invitees');
+  var Registrations = connection.collection('Registrations');
+  
+  var sttime =  addMinutes(new Date(), 0);
+  //console.log(sttime);
+  // var edtime = addMinutes(new Date(), notificationRemainderTime/(1000*60));
+  var edtime = addMinutes(new Date(), (24*60));
+  //console.log(edtime);
+  var invtime = {
+    InvTime: {
+      $gte: sttime,
+      $lte: edtime
+    }
+  }
+ 
+  Invitations.find(invtime).toArray( function(error, invites) {
+    if(error)
+    {
+      utility.log("find Invitations error: " + error, 'ERROR');
+      connection.close();
+    }
+    else
+    {
+      if(debug==true)
+      {
+      utility.log("eligible invitations for push");
+      console.log(invites);
+      }
+      var pushInfo = [];
+      //for (var i = 0; i < invites.length; i++) {
+        invites.forEach(function(inv,i){
+        // pushInfo["Subject"] = invites[i].Subject;
+        // pushInfo["Agenda"] = invites[i].Agenda;
+        // pushInfo["InvTime"] = invites[i].InvTime;
+
+          // Invitations_ids.push(invites[i]._id);
+          Invitees.find({Invitations_id: inv._id}).toArray( function(error, invitees) {
+            if(error)
+            {
+              utility.log("find Invitees error: " + error, 'ERROR');
+              connection.close();
+            }
+            else
+            {
+              if(debug==true)
+              {
+              utility.log("eligible invitees for push");
+              console.log(invitees);
+              }
+
+              //for (var j = 0; j < invitees.length; j++) {
+                invitees.forEach(function(att,j){
+                //pushInfo["UserID"] = invitees[j].UserID;
+
+                Registrations.findOne({UserID: att.UserID.trim()}, function(error, registrations) {
+                  if(error)
+                  {
+                    utility.log("find registration error: " + error, 'ERROR');
+                    connection.close();
+                  }
+                  else
+                  {
+                    if(debug==true)
+                    {
+                    utility.log('Invitees Push URL Info' );
+                    console.log(registrations);
+                    }
+                    // console.log("Inv ID: "+invites[i]._id);
+                    // console.log(invitees[j]);
+                    // console.log(registrations); RemainderMinute
+                    if(registrations != null)
+                    {
+
+                        //console.log(inv);
+                      var RemainderMinute = registrations.RemainderMinute;
+                      utility.log("Remainder Time for "+att.UserID +" is "+RemainderMinute+" minutes");
+                      var md = minutesDiff( inv.InvTime,new Date());
+                      utility.log("meeting "+inv.Subject+" of "+att.UserID+" remaining minute: "+md);
+                      
+                      if(md <= RemainderMinute){
+                        //pushInfo["PushUrl"] = registrations.Handle;
+                        var tileObj = {
+                                  'title': inv.Subject,
+                                  'backTitle': "Next Conference",
+                                  'backBackgroundImage': "/Assets/Tiles/BackTileBackground.png",
+                                  'backContent': inv.Agenda+"("+md+" minutes remaining)"
+                                  };
+                        mpns.sendTile(registrations.Handle, tileObj, function(){utility.log('Pushed to ' + att.UserID+" for "+inv.Subject);});
+                      }
+                      //connection.close();
+                    } 
+                    // else {
+                    //   pushInfo["PushUrl"] =null;
+                    //   utility.log("Can't find push URL for "+pushInfo["UserID"]+" . so can't push notification.",'WARNING');
+                    // }
+                    // console.log(pushInfo);
+
+                  }
+                });
+              });
+            }
+          });
+          
+        }); 
+        //return JSON.stringify(result);
+        // response.setHeader("content-type", "text/plain";
+        // response.write("{\"Tolls\":" + JSON.stringify(result.Toll) + "}";
+        // response.end();
+      }
+    });
+});
+}
+
+
+function PushNotification_bk(notificationRemainderTime)
 {
 
 
@@ -308,7 +428,7 @@ function PushNotification(notificationRemainderTime)
                     if(registrations != null)
                     {
 
-                        //console.log(pushInfo);
+                        console.log(invitees[j]);
                       var RemainderMinute = registrations.RemainderMinute;
                       utility.log("Remainder Time for "+invitees[j].UserID +" is "+RemainderMinute+" minutes");
                       var md = minutesDiff( invites[i].InvTime,new Date());
