@@ -258,7 +258,7 @@ function PushNotification(notificationRemainderTime)
     }
     else
     {
-      if(debug==false)
+      if(debug==true)
       {
       utility.log("eligible invitations for push");
       console.log(invites);
@@ -310,19 +310,19 @@ function PushNotification(notificationRemainderTime)
 
                         //console.log(pushInfo);
                       var RemainderMinute = registrations.RemainderMinute;
-                      utility.log("Remainder Time for "+pushInfo["UserID"] +" is "+RemainderMinute+" minutes");
-                      var md = minutesDiff( pushInfo["InvTime"],new Date());
-                      utility.log("meeting "+pushInfo["Subject"]+" of "+pushInfo["UserID"]+" remaining minute: "+md);
+                      utility.log("Remainder Time for "+invitees[j].UserID +" is "+RemainderMinute+" minutes");
+                      var md = minutesDiff( invites[i].InvTime,new Date());
+                      utility.log("meeting "+invites[i].Subject+" of "+invitees[j].UserID+" remaining minute: "+md);
                       
                       if(md <= RemainderMinute){
                         pushInfo["PushUrl"] = registrations.Handle;
                         var tileObj = {
-                                  'title': pushInfo["Subject"],
+                                  'title': invites[i].Subject,
                                   'backTitle': "Next Conference",
                                   'backBackgroundImage': "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent': pushInfo["Agenda"]+"("+md+" minutes remaining)"
+                                  'backContent': invites[i].Agenda+"("+md+" minutes remaining)"
                                   };
-                        mpns.sendTile(pushInfo["PushUrl"], tileObj, function(){utility.log('Pushed to ' + pushInfo["UserID"]);});
+                        mpns.sendTile(registrations.Handle, tileObj, function(){utility.log('Pushed to ' + invitees[j].UserID);});
                       }
                       //connection.close();
                     } 
