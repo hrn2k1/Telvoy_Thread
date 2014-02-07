@@ -313,7 +313,7 @@ function PushNotification(notificationRemainderTime)
                       var md = minutesDiff( inv.InvTime,new Date());
                       utility.log("meeting "+inv.Subject+" of "+att.UserID+" remaining minute: "+md);
                       
-                      if(md <= RemainderMinute){
+                      if(md <= RemainderMinute && RemainderMinute >-1 ){
                         //pushInfo["PushUrl"] = registrations.Handle;
                         var tileObj = {
                                   'title': inv.Subject,
