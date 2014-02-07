@@ -320,7 +320,7 @@ function PushNotification(notificationRemainderTime)
                                   'title': pushInfo["Subject"],
                                   'backTitle': "Next Conference",
                                   'backBackgroundImage': "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent': pushInfo["Agenda"]+"("+md+" minutes remaining)";
+                                  'backContent': pushInfo["Agenda"]+"("+md+" minutes remaining)"
                                   };
                         mpns.sendTile(pushInfo["PushUrl"], tileObj, function(){utility.log('Pushed to ' + pushInfo["UserID"]);});
                       }
