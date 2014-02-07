@@ -238,10 +238,10 @@ function PushNotification(notificationRemainderTime)
   var Invitees = connection.collection('Invitees');
   var Registrations = connection.collection('Registrations');
   
-  var sttime = new Date(); // addMinutes(new Date(), -99999999);
+  var sttime =  addMinutes(new Date(), 0);
   //console.log(sttime);
   // var edtime = addMinutes(new Date(), notificationRemainderTime/(1000*60));
-  var edtime = addMinutes(new Date(), (12*60));
+  var edtime = addMinutes(new Date(), (24*60));
   //console.log(edtime);
   var invtime = {
     InvTime: {
@@ -258,7 +258,7 @@ function PushNotification(notificationRemainderTime)
     }
     else
     {
-      if(debug==true)
+      if(debug==false)
       {
       utility.log("eligible invitations for push");
       console.log(invites);
@@ -310,16 +310,17 @@ function PushNotification(notificationRemainderTime)
 
                         //console.log(pushInfo);
                       var RemainderMinute = registrations.RemainderMinute;
+                      utility.log("Remainder Time for "+pushInfo["UserID"] +" is "+RemainderMinute+" minutes");
                       var md = minutesDiff( pushInfo["InvTime"],new Date());
-                      utility.log("meeting "+pushInfo["Subject"]+" remaining minute: "+md);
-                      //console.log(md);
+                      utility.log("meeting "+pushInfo["Subject"]+" of "+pushInfo["UserID"]+" remaining minute: "+md);
+                      
                       if(md <= RemainderMinute){
                         pushInfo["PushUrl"] = registrations.Handle;
                         var tileObj = {
                                   'title': pushInfo["Subject"],
                                   'backTitle': "Next Conference",
                                   'backBackgroundImage': "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent': pushInfo["Agenda"]
+                                  'backContent': pushInfo["Agenda"]+"("+md+" minutes remaining)";
                                   };
                         mpns.sendTile(pushInfo["PushUrl"], tileObj, function(){utility.log('Pushed to ' + pushInfo["UserID"]);});
                       }
