@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "sudo node app.js"
   },
   "dependencies": {
     "mpns": "2.0.1",
