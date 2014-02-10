@@ -47,6 +47,7 @@ function parseMail(mail)
      out["pin"]=        out_attach["pin"]       !=null  ?   out_attach["pin"]       :   out_body["pin"];
      out["date"]=       out_attach["date"]      !=null  ?   out_attach["date"]      :   out_body["date"];
      out["time"]=       out_attach["time"]      !=null  ?   out_attach["time"]      :   out_body["time"];
+     out["endtime"]=    out_attach["endtime"]   !=null  ?   out_attach["endtime"]   :   out_body["endtime"];
      out["from"]=       out_attach["from"]      !=null  ?   out_attach["from"]      :   out_body["from"];
      out["to"]=         out_attach["to"]        !=null  ?   out_attach["to"]        :   out_body["to"];
      out["agenda"]=     out_attach["agenda"]    !=null  ?   out_attach["agenda"]    :   out_body["agenda"];
@@ -182,13 +183,14 @@ function parseAttachments(attachments)
             out['password']=utility.Nullify(res['password']);
             //console.log("$$ :"+icalendar_res.events()[0].properties.DTSTART[0].value);
             var date = new Date(icalendar_res.events()[0].properties.DTSTART[0].value);
+            var dateEnd = new Date(icalendar_res.events()[0].properties.DTEND[0].value);
             out['date_time'] = date.toString();
             var date_split = out['date_time'].split(" ");
             out['date'] = date_split.slice(0, 4).join(" ");
             out['time'] = date;//date_split.slice(4).join(" ");;
-
+            out['endtime']=dateEnd;
             out['subject'] = icalendar_res.events()[0].properties.SUMMARY[0].value;
-            utility.log('B4 return in parse attachment');
+            //utility.log('B4 return in parse attachment');
             utility.log(out);
             return out;
         }

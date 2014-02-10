@@ -235,6 +235,7 @@ function fetchMailProcess(fetch) {
                 FromEmail: utility.isNull(out['from'],''),
                 InvDate : new Date(Date.parse(utility.isNull(out['date'],''))),
                 InvTime : utility.convertToDateTime(utility.isNull(out['date'],''),utility.isNull(out['time'],'')),
+                EndTime: utility.isNull(out['endtime'],''),
                 Subject: utility.isNull(out['subject'],''),
                 Toll:utility.isNull(out['toll'],''),
                 PIN: utility.isNull(out['pin'],''),
