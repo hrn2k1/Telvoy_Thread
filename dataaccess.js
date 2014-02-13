@@ -74,9 +74,22 @@ function insertInvitationEntity(entity,addresses)
   var Invitees = connection.collection('Invitees');
   var EmailAddresses = connection.collection('EmailAddresses');
 
-  
+ EmailAddresses.findOne({"EmailID":entity.FromEmail},function(senderError,sender){
+ if(senderError){
+  utility.log('Error in finding sender email in whitelist','ERROR');
+  return;
+ }
+ else{
+  if(sender==null){
+    utility.log('Sender Email address '+ entity.FromEmail +' is not found in whitelist.');
+     mailer.sendMail(config.NOT_WHITELISTED_EMAIL_SUBJECT,config.NOT_WHITELISTED_EMAIL_BODY,entity.FromEmail);
+    return;
+  }
+  else{
+    utility.log('Sender Email '+entity.FromEmail+' is found in whitelist with userID '+sender.UserID);
+    //////////////////////Start Invitation Process/////////////
 
-  Invitations.findOne({"AccessCode": entity.AccessCode}, function(error, result_invite){
+    Invitations.findOne({"AccessCode": entity.AccessCode}, function(error, result_invite){
     if(error){
       utility.log("Error in find invitation with AccessCode to check duplicate" + error,'ERROR');
        connection.close();
@@ -131,6 +144,15 @@ function insertInvitationEntity(entity,addresses)
       }
     }
   });
+
+    //////////////////////End Invitation Process//////////////
+  }
+ }
+
+ });
+  
+
+  
 });
 
 }
