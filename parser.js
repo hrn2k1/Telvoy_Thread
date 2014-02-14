@@ -142,6 +142,18 @@ function parseBody(mail)
     // X-Sender and other fields?
 }
 
+function removeBYHOURfromCalendarRRULE(str){
+  var pattern = /;BYHOUR=[0-9]+/g;
+  var ss = str.replace(pattern, "");
+  return ss;
+}
+
+function removeRRULEfromCalendar(str){
+  var pattern = /RRULE:(.*)+/g;
+  var ss = str.replace(pattern, "");
+  return ss;
+}
+
 function parseAttachments(attachments)
 {
     var out = {};
@@ -153,23 +165,15 @@ function parseAttachments(attachments)
         //console.log(atch.content);
         if (atch.contentType && atch.contentType.match(/calendar/) && atch.content) {
 
-            var str_data = atch.content.toString('utf-8');
+            var str_data = atch.content.toString('utf-8')+'\n';
+            str_data=removeBYHOURfromCalendarRRULE(str_data);
             //console.log(str_data);
 
-//.................................
-// var fs=require('fs');
-//   fs.readFile("calender.txt",function(error, data){
-//      if(error){
-//         console.log(error);
-//      } else {
-//         var desc = data.toString('utf-8');
-//     console.log(desc);
-// ////////////////////////////
-// console.log(icalendar);
-    var icalendar_res = icalendar.parse_calendar(str_data);
+
+        var icalendar_res = icalendar.parse_calendar(str_data);
 
             //console.log(inspect(icalendar_res, false, Infinity));
-            console.log(icalendar_res);
+            //console.log(icalendar_res);
             var res = {};
             while (!res['toll'] || !res['code']) {
                 // case 1, phone and pin in LOCATION
@@ -215,14 +219,7 @@ function parseAttachments(attachments)
             utility.log(out);
             return out;
 
-// ////////////////////////////////////
 
-        
-// }
-
-// });
-
-//.....................
         
         }
     }
