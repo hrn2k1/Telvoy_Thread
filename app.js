@@ -248,7 +248,7 @@ function fetchMailProcess(fetch) {
                 };
         utility.log("db invite entity to insert");
         utility.log(entity);
-         dao.insertInvitationEntity(entity,addresses);
+         dao.insertInvitationEntity(entity,addresses,out['tolls']);
 
            //console.log('End Invitation Save into sql database');
             //sendPushNotification(out);

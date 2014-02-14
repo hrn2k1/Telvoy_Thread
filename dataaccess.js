@@ -65,10 +65,37 @@ else{
   // body...
 }
 
+function InsertMeetingTolls(localtolls){
+  
+  if(localtolls==null) return;
+  if(localtolls.length==0) return;
+  utility.log("Meeting Tolls to insert");
+  console.log(localtolls);
+   mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+      var Tolls = connection.collection('MeetingTolls');
+      Tolls.insert(localtolls,function(err,rslt){
+          if(err){
+            utility.log('Insert MeetingTolls Error: '+err,'ERROR');
+            connection.close();
+          }
+          else{
+            utility.log("Successfully Inserted "+localtolls.length+" Meeting Tolls.");
+            connection.close();
+          }
+      });
+      
+  });
+}
 
-
-function insertInvitationEntity(entity,addresses)
+function insertInvitationEntity(entity,addresses,localtolls)
 {
+   if(localtolls!=null && localtolls.length>0){
+    for (var i = 0; i < localtolls.length; i++) {
+      localtolls[i].MeetingID=entity.AccessCode;
+    };
+   }
+
+
   mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
   var Invitations = connection.collection('Invitations');
   var Invitees = connection.collection('Invitees');
@@ -107,7 +134,7 @@ function insertInvitationEntity(entity,addresses)
             utility.log('insert invitation result.........');
             console.log(result);
             utility.log("Invitation inserted Successfully");
-            InsertMeetingInvitees(EmailAddresses,Invitees,result[0]._id,addresses,0,null);
+            InsertMeetingInvitees(EmailAddresses,Invitees,result[0]._id,addresses,0,function(){ InsertMeetingTolls(localtolls);});
             //connection.close();  
             
           }
@@ -133,7 +160,7 @@ function insertInvitationEntity(entity,addresses)
               }
               else{
                 utility.log('deleted all previous invitees.')
-                 InsertMeetingInvitees(EmailAddresses,Invitees,result_invite._id,addresses,0,null);
+                 InsertMeetingInvitees(EmailAddresses,Invitees,result_invite._id,addresses,0,function(){ InsertMeetingTolls(localtolls);});
               }
             });
            
