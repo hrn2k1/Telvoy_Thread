@@ -1,4 +1,5 @@
 var SITE_ROOT_URL='http://telvoym.azurewebsites.net';
+var THREAD_SITE_URL='http://telvoy.azurewebsites.net'
 var IS_DEBUG_MODE=false;
 var MONGO_CONNECTION_STRING = "mongodb://Telvoy_MongoDb:ZFj.UBl7MvdIsyR4AVOFQVWXAhDSM078Uhc8SRs6.LA-@ds030607.mongolab.com:30607/Telvoy_MongoDb";
 
@@ -42,6 +43,7 @@ var EMAIL_ADDRESS_CONFIRMATION_BODY='To Confirm Click the link\n [LINK] \n copy 
 
 
 exports.SITE_ROOT_URL=SITE_ROOT_URL;
+exports.THREAD_SITE_URL=THREAD_SITE_URL;
 exports.IS_DEBUG_MODE=IS_DEBUG_MODE;
 exports.PULL_EMAIL_ID=PULL_EMAIL_ID;
 exports.PULL_EMAIL_PASS=PULL_EMAIL_PASS;

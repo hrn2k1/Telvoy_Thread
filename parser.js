@@ -169,9 +169,14 @@ function parseAttachments(attachments)
             str_data=removeBYHOURfromCalendarRRULE(str_data);
             //console.log(str_data);
 
-
-        var icalendar_res = icalendar.parse_calendar(str_data);
-
+        var icalendar_res;
+        try{
+            icalendar_res = icalendar.parse_calendar(str_data);
+          }
+          catch(err){
+            utility.log('Failed to parse caledndar attachment. Error: '+err);
+            return;
+          }
             //console.log(inspect(icalendar_res, false, Infinity));
             //console.log(icalendar_res);
             var res = {};
@@ -249,7 +254,11 @@ if (result){
 return null;
 }
 
-
+function parsePhoneNumber(str){
+  var expr=/\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*(\d{1,2})/g;
+  var m=str.match(expr);
+  return m;
+}
 
 ////////////////////////////////end field parser /////////////////////////
 function parseString(str, delimiter, endMarker, allowFuzzy, usePattern)
@@ -1782,6 +1791,10 @@ function parseString(str, delimiter, endMarker, allowFuzzy, usePattern)
                 out[dict[i].keyword]=null;
         }
     }
+
+    if(out['toll']==undefined || out['toll']==null || out['toll']=='')
+      out['toll']=parsePhoneNumber(str);
+
     out['provider']=parseProvider(str);
     out['tolls']=tolllist;
     return out;

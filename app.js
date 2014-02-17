@@ -47,8 +47,14 @@ http.createServer(function(request, response) {
         utility.log('Requested URL: '+request.url);
         utility.log('Requested Query String: '+ url.parse(request.url).query);
     }
-
-    if(uri.toLowerCase()=="/config")
+    if(uri.toLowerCase()=="/ping")
+    {
+              //utility.log('Showing Configuration Settings');
+              response.setHeader("content-type", "text/plain");
+              response.write("OK");
+              response.end();
+    }
+    else if(uri.toLowerCase()=="/config")
     {
               utility.log('Showing Configuration Settings');
               response.setHeader("content-type", "text/plain");
@@ -98,11 +104,18 @@ function RightString(str, n){
         return String(str).substring(intLen, intLen - n);
             }
 }
-
+function sleep(delay) {
+        var start = new Date().getTime();
+        while (new Date().getTime() < start + delay);
+      }
 var duration=config.PULL_EMAIL_DURATION;
 var NotificationRemainderDuration=config.NOTIFICATION_DURATION;
 
 //console.log(duration);
+// while(true){
+// checkMails();
+// sleep(5000);
+// }
 checkMails();
 setInterval(function() {
     utility.log('Pulling Invitation..');
@@ -246,8 +259,8 @@ function fetchMailProcess(fetch) {
                 Agenda:utility.isNull(out['agenda'],''),
                 MessageID:utility.isNull(out['messageId'],'')
                 };
-        utility.log("db invite entity to insert");
-        utility.log(entity);
+        utility.log("invitation entity to insert");
+        console.log(entity);
          dao.insertInvitationEntity(entity,addresses,out['tolls']);
 
            //console.log('End Invitation Save into sql database');
