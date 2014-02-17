@@ -1793,7 +1793,11 @@ function parseString(str, delimiter, endMarker, allowFuzzy, usePattern)
     }
 
     if(out['toll']==undefined || out['toll']==null || out['toll']=='')
-      out['toll']=parsePhoneNumber(str);
+    {
+      var nos=parsePhoneNumber(str);
+      if(nos !=null && nos !=undefined && nos.length>0)
+         out['toll']=nos[0];
+    }
 
     out['provider']=parseProvider(str);
     out['tolls']=tolllist;
