@@ -45,7 +45,7 @@ var dt=new Date();
 if(typeof(msg)=='object')
     msg=JSON.stringify(msg);
 var msgtext=dt.toISOString()+'>> '+ type+': '+msg;
-//console.log(msgtext);
+console.log(msgtext);
 
 if(type=='ERROR')
     mailer.sendMail("Error Occured.",msgtext,"harun@nordicsoft.com.bd");
