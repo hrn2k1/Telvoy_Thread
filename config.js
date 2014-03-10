@@ -6,20 +6,20 @@ var MONGO_CONNECTION_STRING = "mongodb://Telvoy_MongoDb:ZFj.UBl7MvdIsyR4AVOFQVWX
 
 
 //Imap server
-/*
+
 var PULL_EMAIL_ID ="confme@ext.movial.com";
 var PULL_EMAIL_PASS="aivohyiey0iePh";
 var PULL_EMAIL_SERVER="imap.gmail.com";
 var PULL_EMAIL_SERVER_PORT=993;
 var PULL_EMAIL_SERVER_SECURE=true;
-*/
 
+/*
 var PULL_EMAIL_ID ='esydomain\\telvoytest1';
 var PULL_EMAIL_PASS="Telvo123!@";
 var PULL_EMAIL_SERVER="mail.esydomain.com";
 var PULL_EMAIL_SERVER_PORT=143;
 var PULL_EMAIL_SERVER_SECURE=false;
-
+*/
 
 //console.log(PULL_EMAIL_ID);
 var EMAIL_PULL_CRITERIA='UNSEEN';
