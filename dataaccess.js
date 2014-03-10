@@ -19,7 +19,7 @@ function replaceAll(find, replace, str) {
 function InsertMeetingInvitees (EmailAddresses,Invitees,invID,addresses,i,callback) {
 if(i<addresses.length){
   
-   EmailAddresses.findOne({EmailID: addresses[i].address}, function(error, result1){
+   EmailAddresses.findOne({EmailID: addresses[i].address,Verified:true}, function(error, result1){
                 if(!error){
                   if(result1==null){
                     utility.log(addresses[i].address+' not found in white list');
@@ -101,7 +101,7 @@ function insertInvitationEntity(entity,addresses,localtolls)
   var Invitees = connection.collection('Invitees');
   var EmailAddresses = connection.collection('EmailAddresses');
 
- EmailAddresses.findOne({"EmailID":entity.FromEmail},function(senderError,sender){
+ EmailAddresses.findOne({"EmailID":entity.FromEmail,"Verified":true},function(senderError,sender){
  if(senderError){
   utility.log('Error in finding sender email in whitelist','ERROR');
   return;
