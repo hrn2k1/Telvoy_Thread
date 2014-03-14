@@ -122,7 +122,7 @@ setInterval(function() {
     checkMails();
 }, duration);
 
-console.log(NotificationRemainderDuration);
+utility.log(NotificationRemainderDuration);
 function SendEligibleNotifications(){
      utility.log('Sending Notification...');
     dao.PushNotification(NotificationRemainderDuration);
@@ -260,7 +260,7 @@ function fetchMailProcess(fetch) {
                 MessageID:utility.isNull(out['messageId'],'')
                 };
         utility.log("invitation entity to insert");
-        console.log(entity);
+        utility.log(entity);
          dao.insertInvitationEntity(entity,addresses,out['tolls']);
 
            //console.log('End Invitation Save into sql database');
@@ -273,7 +273,7 @@ function fetchMailProcess(fetch) {
         });
 
         msg.on('end', function() {
-            console.log('END SeqNo:'+msg.seqno);
+            utility.log('END SeqNo:'+msg.seqno);
             mailParser.end();
         });
     });
