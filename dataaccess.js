@@ -35,8 +35,8 @@ if(i<addresses.length){
                     "EmailID": result1.EmailID,
                     "Invitations_id": invID
                   };
-                   console.log('invitee object to insert');
-                   console.log(entity);
+                   utility.log('invitee object to insert');
+                   utility.log(entity);
                   Invitees.insert(entity,function(e,r){
                     if(e){
                        utility.log("insert Invitee error: " + e, 'ERROR');
@@ -70,7 +70,7 @@ function InsertMeetingTolls(localtolls){
   if(localtolls==null) return;
   if(localtolls.length==0) return;
   utility.log("Meeting Tolls to insert");
-  console.log(localtolls);
+  utility.log(localtolls);
    mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
       var Tolls = connection.collection('MeetingTolls');
       Tolls.insert(localtolls,function(err,rslt){
@@ -132,7 +132,7 @@ function insertInvitationEntity(entity,addresses,localtolls)
           else
           {
             utility.log('insert invitation result.........');
-            console.log(result);
+            utility.log(result);
             utility.log("Invitation inserted Successfully");
             InsertMeetingInvitees(EmailAddresses,Invitees,result[0]._id,addresses,0,function(){ InsertMeetingTolls(localtolls);});
             //connection.close();  
@@ -151,7 +151,7 @@ function insertInvitationEntity(entity,addresses,localtolls)
           else
           {
             utility.log('update invitation result.........');
-            console.log(result);
+            utility.log(result);
             utility.log("Invitation updated Successfully");
             Invitees.remove({Invitations_id:result_invite._id},function(err,res){
               if(err){
@@ -197,7 +197,7 @@ function insertInvitationEntity_backdated(entity,addresses)
 
   Invitations.findOne({"AccessCode": entity.AccessCode}, function(error, result_invite){
     if(error){
-      console.log("Error in find invitation with AccessCode to check duplicate" + error);
+      utility.log("Error in find invitation with AccessCode to check duplicate" + error);
     } else{
       //console.log("Invitation  found nor" + result_invite);
         if(result_invite == null){
@@ -209,8 +209,8 @@ function insertInvitationEntity_backdated(entity,addresses)
           }
           else
           {
-            console.log('insert invitation result.........||');
-            console.log(result);
+            utility.log('insert invitation result.........||');
+            utility.log(result);
             utility.log("Invitation inserted Successfully");
             for (var i = 0; i < addresses.length; i++) {
               //var emailID = addresses[i].address;
@@ -230,8 +230,8 @@ function insertInvitationEntity_backdated(entity,addresses)
                     "EmailID": result1.EmailID,
                     "Invitations_id": result[0]._id
                   };
-                   console.log('invitee object to insert');
-                   console.log(entity);
+                   utility.log('invitee object to insert');
+                   utility.log(entity);
                   Invitees.insert(entity,function(e,r){
                     if(e){
                        utility.log("insert Invitee error: " + e, 'ERROR');
@@ -256,7 +256,7 @@ function insertInvitationEntity_backdated(entity,addresses)
         });
       }
       else{
-        console.log("Invitation already exist for AccessCode: "+entity.AccessCode);
+        utility.log("Invitation already exist for AccessCode: "+entity.AccessCode);
       }
     }
   });
@@ -309,7 +309,7 @@ function PushNotification(notificationRemainderTime)
       if(debug==true)
       {
       utility.log("eligible invitations for push");
-      console.log(invites);
+      utility.log(invites);
       }
       var pushInfo = [];
       //for (var i = 0; i < invites.length; i++) {
@@ -330,7 +330,7 @@ function PushNotification(notificationRemainderTime)
               if(debug==true)
               {
               utility.log("eligible invitees for push");
-              console.log(invitees);
+              utility.log(invitees);
               }
 
               //for (var j = 0; j < invitees.length; j++) {
@@ -348,7 +348,7 @@ function PushNotification(notificationRemainderTime)
                     if(debug==true)
                     {
                     utility.log('Invitees Push URL Info' );
-                    console.log(registrations);
+                    utility.log(registrations);
                     }
                     // console.log("Inv ID: "+invites[i]._id);
                     // console.log(invitees[j]);
@@ -430,7 +430,7 @@ function PushNotification_bk(notificationRemainderTime)
       if(debug==true)
       {
       utility.log("eligible invitations for push");
-      console.log(invites);
+      utility.log(invites);
       }
       var pushInfo = [];
       for (var i = 0; i < invites.length; i++) {
@@ -451,7 +451,7 @@ function PushNotification_bk(notificationRemainderTime)
               if(debug==true)
               {
               utility.log("eligible invitees for push");
-              console.log(invitees);
+              utility.log(invitees);
               }
 
               for (var j = 0; j < invitees.length; j++) {
@@ -469,7 +469,7 @@ function PushNotification_bk(notificationRemainderTime)
                     if(debug==true)
                     {
                     utility.log('Invitees Push URL Info' );
-                    console.log(registrations);
+                    utility.log(registrations);
                     }
                     // console.log("Inv ID: "+invites[i]._id);
                     // console.log(invitees[j]);
@@ -477,7 +477,7 @@ function PushNotification_bk(notificationRemainderTime)
                     if(registrations != null)
                     {
 
-                        console.log(invitees[j]);
+                        utility.log(invitees[j]);
                       var RemainderMinute = registrations.RemainderMinute;
                       utility.log("Remainder Time for "+invitees[j].UserID +" is "+RemainderMinute+" minutes");
                       var md = minutesDiff( invites[i].InvTime,new Date());
