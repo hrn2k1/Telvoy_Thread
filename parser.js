@@ -1,6 +1,5 @@
 
 
-
 var inspect = require('util').inspect;
 var icalendar = require('icalendar');
 var config = require('./config.js');
@@ -331,6 +330,13 @@ function parseString(str, delimiter, endMarker, allowFuzzy, usePattern)
     alts: 'topic|agenda',
     pattern: '.+',
     fuzzy: false,
+    
+  },
+  {
+    keyword: 'country',
+    alts: 'United States',
+    pattern: '[0-9\\-+]+',
+    fuzzy: true,
     
   },
   {
