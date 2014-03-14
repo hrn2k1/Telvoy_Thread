@@ -37,7 +37,8 @@ if(debug==true)
 }
 
 process.on('uncaughtException', function (err) {
-    fs.writeFile("test.txt",  err, "utf8");    
+    //fs.writeFile("test.txt",  err, "utf8");  
+     fs.appendFile("threaderrorlog.txt", (new Date()).toISOString()+'>>'+ err+"  ", "utf8");   
 })
 http.createServer(function(request, response) {
     var uri = url.parse(request.url).pathname;
