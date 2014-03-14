@@ -33,7 +33,7 @@ function sendMail(subject,msg,recipients)
 		};
 		 if(debug==true){
 	        utility.log('Mail Object to send');
-	        console.log(mailOptions);
+	        utility.log(mailOptions);
     	}
 		// send mail with defined transport object
 		smtpTransport.sendMail(mailOptions, function(error, response){
