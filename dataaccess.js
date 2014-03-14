@@ -72,6 +72,10 @@ function InsertMeetingTolls(localtolls){
   utility.log("Meeting Tolls to insert");
   utility.log(localtolls);
    mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+    if(err) {
+      utility.log('database connection error: '+err,'ERROR');
+      return;
+  }
       var Tolls = connection.collection('MeetingTolls');
       Tolls.insert(localtolls,function(err,rslt){
           if(err){
@@ -97,6 +101,10 @@ function insertInvitationEntity(entity,addresses,localtolls)
 
 
   mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+   if(err) {
+      utility.log('database connection error: '+err,'ERROR');
+      return;
+  }
   var Invitations = connection.collection('Invitations');
   var Invitees = connection.collection('Invitees');
   var EmailAddresses = connection.collection('EmailAddresses');
@@ -189,6 +197,10 @@ function insertInvitationEntity(entity,addresses,localtolls)
 function insertInvitationEntity_backdated(entity,addresses)
 {
   mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+   if(err) {
+      utility.log('database connection error: '+err,'ERROR');
+      return;
+  }
   var Invitations = connection.collection('Invitations');
   var Invitees = connection.collection('Invitees');
   var EmailAddresses = connection.collection('EmailAddresses');
@@ -281,6 +293,10 @@ function PushNotification(notificationRemainderTime)
 
 
   mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+   if(err) {
+      utility.log('database connection error: '+err,'ERROR');
+      return;
+  }
 
   var Invitations = connection.collection('Invitations');
   var Invitees = connection.collection('Invitees');
@@ -402,6 +418,10 @@ function PushNotification_bk(notificationRemainderTime)
 
 
   mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+   if(err) {
+      utility.log('database connection error: '+err,'ERROR');
+      return;
+  }
 
   var Invitations = connection.collection('Invitations');
   var Invitees = connection.collection('Invitees');
@@ -525,6 +545,10 @@ function PushNotification_back(notificationRemainderTime)
 {
 
 mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+ if(err) {
+      utility.log('database connection error: '+err,'ERROR');
+      return;
+  }
 
   var Invitations = connection.collection('Invitations');
   var Invitees = connection.collection('Invitees');
