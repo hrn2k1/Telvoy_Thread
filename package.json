@@ -13,7 +13,6 @@
     "mimelib-noiconv": "*",
     "nodemailer": "0.5.14",
     "mongodb": "~1.3.23",
-    "monk": "~0.7.1",
-    "heapdump": "*"
+    "monk": "~0.7.1"
   }
 }
