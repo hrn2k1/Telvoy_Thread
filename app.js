@@ -239,7 +239,10 @@ function fetchMailProcess(fetch) {
             var addressStr = replaceAll(';', ',', out['to']); //'jack@smart.com, "Development, Business" <bizdev@smart.com>';
             var addresses = mimelib.parseAddresses(addressStr);
             if(out['from'] !=null && out['from'] !='')
-              addresses.push(out['from']);
+            {
+              var fromAttendee={"address":out['from'],"name":""};
+              addresses.push(fromAttendee);
+            }
             utility.log('No. of Attendees :'+ addresses.length);
             utility.log('Starting Invitation Save into mongodb database...');
             var emailsto='';
