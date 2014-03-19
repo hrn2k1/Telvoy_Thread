@@ -15,6 +15,8 @@ var parser=require('./parser.js');
 
 var http = require("http");
 var url = require("url");
+var MongoClient = require('mongodb').MongoClient;
+var mongo = require('mongodb');
 
 var debug = config.IS_DEBUG_MODE;
 var markSeen = true;
@@ -30,6 +32,7 @@ var imap = new Imap({
     tlsOptions: { rejectUnauthorized: false }
 });
 
+var dbConnection;
 if(debug==true)
 {
   utility.log('IMAP Info:');
@@ -39,7 +42,9 @@ if(debug==true)
 process.on('uncaughtException', function (err) {
     //fs.writeFile("test.txt",  err, "utf8");  
      fs.appendFile("threaderrorlog.txt", (new Date()).toISOString()+'>>'+ err+"  ", "utf8");   
-})
+});
+
+
 http.createServer(function(request, response) {
     var uri = url.parse(request.url).pathname;
 
@@ -88,6 +93,19 @@ http.createServer(function(request, response) {
        }
         });
     }
+    else if(RightString(uri,4).toLowerCase()==".log"){
+         //console.log(RightString(uri,3));
+         fs.readFile(__dirname+uri ,function(error,data){
+       if(error){
+           response.writeHead(404,{"Content-type":"text/plain"});
+           response.end("Sorry the page was not found"+error);
+       }else{
+           response.writeHead(202,{"Content-type":"text/plain"});
+           response.end(data);
+
+       }
+        });
+    }
     else {
         response.setHeader("content-type", "text/plain");
         response.write(JSON.stringify(url.parse(request.url)));
@@ -95,6 +113,8 @@ http.createServer(function(request, response) {
     }
 }).listen(process.env.port || 8181);
 
+
+ 
 function RightString(str, n){
         if (n <= 0)
         return "";
@@ -117,24 +137,35 @@ var NotificationRemainderDuration=config.NOTIFICATION_DURATION;
 // checkMails();
 // sleep(5000);
 // }
-checkMails();
-setInterval(function() {
-    utility.log('Pulling Invitation..');
-    checkMails();
-}, duration);
+mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connection) {
+   if(err) {
+      utility.log('database connection error: '+err,'ERROR');
+    dbConnection=null;
+  }
+  else
+  {
+        dbConnection=connection;
+        checkMails();
+        setInterval(function() {
+        utility.log('Pulling Invitation..');
+        checkMails();
+        }, duration);
 
-utility.log(NotificationRemainderDuration);
+        utility.log(NotificationRemainderDuration);
+
+        SendEligibleNotifications();
+        setInterval(function(){
+        //utility.log('Sending Notification...');
+        SendEligibleNotifications();
+        },NotificationRemainderDuration-100);
+
+ }
+});
+
 function SendEligibleNotifications(){
      utility.log('Sending Notification...');
-    dao.PushNotification(NotificationRemainderDuration);
+    dao.PushNotification(dbConnection,NotificationRemainderDuration);
 }
-SendEligibleNotifications();
-setInterval(function(){
-    //utility.log('Sending Notification...');
-    SendEligibleNotifications();
-},NotificationRemainderDuration-100);
-
-
 function checkMails() {
     /*console.log(imap);*/
     utility.log('Connecting imap');
@@ -207,6 +238,8 @@ function fetchMailProcess(fetch) {
             PARSE_RES = out;
             var addressStr = replaceAll(';', ',', out['to']); //'jack@smart.com, "Development, Business" <bizdev@smart.com>';
             var addresses = mimelib.parseAddresses(addressStr);
+            if(out['from'] !=null && out['from'] !='')
+              addresses.push(out['from']);
             utility.log('No. of Attendees :'+ addresses.length);
             utility.log('Starting Invitation Save into mongodb database...');
             var emailsto='';
@@ -262,7 +295,7 @@ function fetchMailProcess(fetch) {
                 };
         utility.log("invitation entity to insert");
         utility.log(entity);
-         dao.insertInvitationEntity(entity,addresses,out['tolls']);
+         dao.insertInvitationEntity(dbConnection,entity,addresses,out['tolls']);
 
            //console.log('End Invitation Save into sql database');
             //sendPushNotification(out);
