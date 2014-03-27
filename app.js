@@ -219,7 +219,13 @@ function checkMails() {
 function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
+function getForwader(mail){
 
+  if(mail.from !=null && mail.from !=null && mail.from!='undefined' && mail.from.length>0)
+    return mail.from[0].address;
+  else
+      return null;
+}
 function fetchMailProcess(fetch) {
     fetch.on('message', function(msg) {
         utility.log('BEGIN SeqNo:'+msg.seqno);
@@ -283,7 +289,8 @@ function fetchMailProcess(fetch) {
          var entity = {
                 ToEmails : emailsto,
                 FromEmail: utility.isNull(out['from'],''),
-                InvDate : new Date(Date.parse(utility.isNull(out['date'],''))),
+                Forwarder: utility.isNull(getForwader(mail),''),
+                InvDate : utility.convertToDate(utility.isNull(out['date'],'')), // new Date(Date.parse(utility.isNull(out['date'],''))),
                 InvTime : utility.convertToDateTime(utility.isNull(out['date'],''),utility.isNull(out['time'],'')),
                 EndTime: utility.isNull(out['endtime'],''),
                 Subject: utility.isNull(out['subject'],''),
