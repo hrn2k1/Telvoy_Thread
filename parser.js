@@ -75,14 +75,20 @@ function parseMail(mail)
     return out;
 }
 
-
+function remove1stDateOfBody(str){
+  var pattern = /Date:(.*)+/;
+  var ss = str.replace(pattern, "");
+  return ss;
+}
 function parseBody(mail)
 {
     //console.log(inspect(mail));
     var out = null;
     if (mail.text) {
         utility.log('##### fallback to parsing text BODY ######');
-        out = parseString(mail.text, ':', '\n', true, false);
+        var bodytext=remove1stDateOfBody(mail.text);
+        //console.log(bodytext);
+        out = parseString(bodytext, ':', '\n', true, false);
          //console.log(out);
         //out["body"] = mail.text;
     } else if (mail.html) {
