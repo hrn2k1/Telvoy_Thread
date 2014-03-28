@@ -1,5 +1,4 @@
 
-
 var inspect = require('util').inspect;
 var icalendar = require('icalendar');
 var config = require('./config.js');
@@ -305,7 +304,7 @@ function parseString(str, delimiter, endMarker, allowFuzzy, usePattern)
   },
   {
     keyword: 'time',
-    alts: 'time',
+    alts: 'time|when',
     pattern: '.+',
     fuzzy: false,
     
