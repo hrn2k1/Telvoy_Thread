@@ -247,8 +247,14 @@ function fetchMailProcess(fetch) {
             var addresses = mimelib.parseAddresses(addressStr);
             if(out['from'] !=null && out['from'] !='')
             {
-              var fromAttendee={"address":out['from'],"name":""};
+              var fromss=out['from'];
+              formss=replaceAll(';', ',', fromss);
+              formss=replaceAll('mailto:', '', formss.toLowerCase());
+              var froms=mimelib.parseAddresses(formss);
+              if(froms.length>0){
+              var fromAttendee={"address":froms[0].address,"name":froms[0].name};
               addresses.push(fromAttendee);
+            }
             }
             utility.log('No. of Attendees :'+ addresses.length);
             utility.log('Starting Invitation Save into mongodb database...');
