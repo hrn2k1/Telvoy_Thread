@@ -300,7 +300,7 @@ function fetchMailProcess(fetch) {
                 InvDate : utility.convertToDate(utility.isNull(out['date'],'')), // new Date(Date.parse(utility.isNull(out['date'],''))),
                 InvTime : utility.convertToDateTime(utility.isNull(out['date'],''),utility.isNull(out['time'],'')),
                 EndTime: utility.isNull(out['endtime'],''),
-                Subject: utility.isNull(out['subject'],''),
+                Subject: utility.isNull(out['subject'],'').replace('FW: ',''),
                 Toll:utility.isNull(out['toll'],''),
                 PIN: utility.isNull(out['pin'],''),
                 AccessCode: utility.isNull(out['code'],''),
