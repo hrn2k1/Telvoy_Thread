@@ -243,6 +243,7 @@ function fetchMailProcess(fetch) {
             out['fetch'] = "success";
             PARSE_RES = out;
             var addressStr = replaceAll(';', ',', out['to']); //'jack@smart.com, "Development, Business" <bizdev@smart.com>';
+            addressStr=replaceAll('mailto:', '', addressStr.toLowerCase());
             var addresses = mimelib.parseAddresses(addressStr);
             if(out['from'] !=null && out['from'] !='')
             {
