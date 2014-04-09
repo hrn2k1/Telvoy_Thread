@@ -84,7 +84,8 @@ function parseBody(mail)
     var out = null;
     if (mail.text) {
         utility.log('##### fallback to parsing text BODY ######');
-        var bodytext=remove1stDateOfBody(mail.text);
+        var bodytext=remove1stDateOfBody(mail.text.replace('Sent:','Date:'));
+        //var bodytext=remove1stDateOfBody(mail.text);
         //console.log(bodytext);
         out = parseString(bodytext, ':', '\n', true, false);
          //console.log(out);
