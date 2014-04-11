@@ -1,7 +1,7 @@
 var mpns = require('mpns');
 var config=require('./config.js');
 var utility=require('./utility.js');
-
+var moment = require('moment');
  var mailer= require('./mailsender.js');
 
 
@@ -11,7 +11,177 @@ function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
 
+function ProcessInvitees(dbConnection,addresses,callback){
 
+  if(dbConnection==null) {
+      utility.log('database connection is null','ERROR');
+     
+      return;
+  }
+  var Atts=[];
+  var EmailAddresses = dbConnection.collection('EmailAddresses');
+  addresses.forEach(function(addr,j){
+
+      EmailAddresses.findOne({EmailID: addr.address,Verified:true}, function(error, result1){
+                    if(!error){
+                      if(result1==null){
+                        utility.log(addr.address+' not found in white list');
+                          //send email
+                        mailer.sendMail(config.NOT_WHITELISTED_EMAIL_SUBJECT,config.NOT_WHITELISTED_EMAIL_BODY,addr.address);
+                        if(j+1==addresses.length)
+                         {
+                          if(callback !=null) callback(null,Atts);
+                         }
+                        }
+                      else{
+                         Atts.push( {"UserID": result1.UserID,"EmailID": result1.EmailID} );
+                          //console.log(j,Atts);
+                         mailer.sendMail(config.ATTENDEE_EMAIL_SUBJECT,config.ATTENDEE_EMAIL_BODY,result1.EmailID);
+                         utility.log('Parsed Success email sent to '+result1.EmailID);
+                         if(j+1==addresses.length)
+                         {
+                          if(callback !=null) callback(null,Atts);
+                         }
+                      }
+                    }
+                      else{
+                        if(callback !=null) callback(error,null);
+                      }
+                });
+});
+
+
+}
+
+
+
+function InsertMeetingTolls(connection,localtolls){
+  
+  if(localtolls==null) return;
+  if(localtolls.length==0) return;
+  utility.log("Meeting Tolls to insert");
+  utility.log(localtolls);
+  if(connection==null) {
+      utility.log('database connection is null','ERROR');
+     
+      return;
+  }
+      var Tolls = connection.collection('MeetingTolls');
+      Tolls.insert(localtolls,function(err,rslt){
+          if(err){
+            utility.log('Insert MeetingTolls Error: '+err,'ERROR');
+             
+          }
+          else{
+            utility.log("Successfully Inserted "+localtolls.length+" Meeting Tolls.");
+             
+          }
+      });
+      
+
+}
+function insertInvitationEntity(connection,entity,addresses,localtolls)
+{
+  //console.log(entity.InvTime,entity.EndTime);
+  if(entity.EndTime=="" || entity.EndTime==null || entity.EndTime=="undefined"){ 
+  entity.EndTime= addMinutes(entity.InvTime,60); 
+  utility.log("Empty EndTime. and added 1 hr to InvTime: ",entity.EndTime);
+}
+
+   if(localtolls!=null && localtolls.length>0){
+    for (var i = 0; i < localtolls.length; i++) {
+      localtolls[i].MeetingID=entity.AccessCode;
+    };
+   }
+
+if(connection==null) {
+      utility.log('database connection is null','ERROR');
+     
+      return;
+  }
+  var Invitations = connection.collection('Invitations');
+  var EmailAddresses = connection.collection('EmailAddresses');
+
+ EmailAddresses.findOne({"EmailID":entity.Forwarder,"Verified":true},function(senderError,sender){
+ if(senderError){
+  utility.log('Error in finding sender email in whitelist','ERROR');
+  return;
+ }
+ else{
+  if(sender==null){
+    utility.log('Sender(Forwarder) Email address '+ entity.Forwarder +' is not found in whitelist.');
+     mailer.sendMail(config.NOT_WHITELISTED_EMAIL_SUBJECT,config.NOT_WHITELISTED_EMAIL_BODY,entity.Forwarder);
+    return;
+  }
+  else{
+    utility.log('Sender(Forwarder) Email '+entity.Forwarder+' is found in whitelist with userID '+sender.UserID);
+    //////////////////////Start Invitation Process/////////////
+    ProcessInvitees(connection,addresses,function(error,addrs){
+      if(error){
+        utility.log('ProcessInvitees error: '+error);
+      }
+      else{
+        utility.log('Allowed Attendees...');
+        utility.log(addrs);
+        entity.Attendees=addrs;
+
+        Invitations.findOne({"AccessCode": entity.AccessCode}, function(error, result_invite){
+    if(error){
+      utility.log("Error in find invitation with AccessCode to check duplicate" + error,'ERROR');
+        
+    } else{
+      //console.log("Invitation  found nor" + result_invite);
+        if(result_invite == null){
+         Invitations.insert(entity, function(error, result) {
+          if(error)
+          {
+            utility.log("insertInvitationEntity() error: " + error, 'ERROR');
+             
+          }
+          else
+          {
+            utility.log('insert invitation result.........');
+            utility.log(result);
+            utility.log("Invitation inserted Successfully");
+            
+          }
+        });
+      }
+      else{
+        utility.log("Invitation already exist for AccessCode: "+result_invite.AccessCode);
+        Invitations.update({"_id":result_invite._id}, {$set:entity}, function(error,result){
+          if(error)
+          {
+            utility.log("update error in insertInvitationEntity() error: " + error, 'ERROR');
+             
+          }
+          else
+          {
+            utility.log('update invitation result.........');
+            utility.log(result);
+            utility.log("Invitation updated Successfully");
+            
+          }
+        });
+      }
+    }
+  });
+
+
+      }
+
+    });
+    
+
+    //////////////////////End Invitation Process//////////////
+  }
+ }
+
+ });
+  
+
+
+}
 
 function InsertMeetingInvitees (EmailAddresses,Invitees,invID,addresses,i,callback) {
 if(i<addresses.length){
@@ -61,34 +231,7 @@ else{
 }
   // body...
 }
-
-function InsertMeetingTolls(connection,localtolls){
-  
-  if(localtolls==null) return;
-  if(localtolls.length==0) return;
-  utility.log("Meeting Tolls to insert");
-  utility.log(localtolls);
-  if(connection==null) {
-      utility.log('database connection is null','ERROR');
-     
-      return;
-  }
-      var Tolls = connection.collection('MeetingTolls');
-      Tolls.insert(localtolls,function(err,rslt){
-          if(err){
-            utility.log('Insert MeetingTolls Error: '+err,'ERROR');
-             
-          }
-          else{
-            utility.log("Successfully Inserted "+localtolls.length+" Meeting Tolls.");
-             
-          }
-      });
-      
-
-}
-
-function insertInvitationEntity(connection,entity,addresses,localtolls)
+function insertInvitationEntity_back(connection,entity,addresses,localtolls)
 {
   //console.log(entity.InvTime,entity.EndTime);
   if(entity.EndTime=="" || entity.EndTime==null || entity.EndTime=="undefined"){ 
@@ -305,10 +448,10 @@ function PushNotification(connection,notificationRemainderTime)
                       if(md <= RemainderMinute && RemainderMinute >-1 ){
                         //pushInfo["PushUrl"] = registrations.Handle;
                         var tileObj = {
-                                  'title': inv.Subject,
-                                  'backTitle': "Next Conference",
+                                  'title':'', // inv.Subject,
+                                  'backTitle': moment(inv.InvTime).date()==moment().date()? 'Today':'Tomorrow', //"Next Conference",
                                   'backBackgroundImage': "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent': inv.Agenda+"("+md+" minutes remaining)"
+                                  'backContent': inv.Subject+'\n'+ moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
                                   };
                         mpns.sendTile(registrations.Handle, tileObj, function(){utility.log('Pushed to ' + att.UserID+" for "+inv.Subject);});
                       }
@@ -351,4 +494,5 @@ function PushNotification(connection,notificationRemainderTime)
 
 /// Exposes all methods to call outsite this file, using its object   
 exports.insertInvitationEntity=insertInvitationEntity;
-exports.PushNotification=PushNotification
+exports.PushNotification=PushNotification;
+exports.ProcessInvitees=ProcessInvitees;
