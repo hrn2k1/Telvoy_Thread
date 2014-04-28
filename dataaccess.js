@@ -7,10 +7,53 @@ var moment = require('moment');
 
 var debug = config.IS_DEBUG_MODE;
 
+/*function to a string with another string*/
 function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
 
+function SendToastNotification(connection,userID,boldText,normalText,callback){
+  if(connection==null) {
+      utility.log('database connection is null','ERROR');
+      return;
+  }
+  var Registrations = connection.collection('Registrations');
+      Registrations.findOne({UserID: userID.trim()}, function(error, registration) {
+                  if(error)
+                  {
+                    utility.log("find registration error: " + error, 'ERROR');
+                  }
+                  else
+                  {
+                    if(debug==true)
+                    {
+                    utility.log('Invitees Push URL Info for sending Toast' );
+                    utility.log(registration);
+                    }
+                    if(registration != null)
+                    {
+                      var pushUri=registration.Handle;
+                       mpns.sendToast(pushUri,boldText,normalText,function(error,result){
+                        if(error){
+                          utility.log("Can't Send Toast to User "+userID+" Error: "+error); 
+                        }
+                        else{
+                           utility.log('Successfully Sent Toast to User '+userID+' and result ');
+                           utility.log(result); 
+                        }
+                        if(callback !=null)
+                          callback(error,result);
+                    });
+                    }
+                  }
+                });
+
+
+
+}
+
+/*Recurssive Method to handle Invitees. 
+Due to IO non-blocking feature of Node.js normal looping is not applicable here*/
 function ProcessInvitees(dbConnection,addresses,callback){
 
   if(dbConnection==null) {
@@ -54,7 +97,8 @@ function ProcessInvitees(dbConnection,addresses,callback){
 }
 
 
-
+/* Some Invitation mail body contains toll/dial in numbers with a few country list.
+This Method is to store them into MeetingTolls Collection*/
 function InsertMeetingTolls(connection,localtolls){
   
   if(localtolls==null) return;
@@ -80,6 +124,7 @@ function InsertMeetingTolls(connection,localtolls){
       
 
 }
+/*This Method is to Insert/Update Invitation. This is called after parsing the invitation mail.*/
 function insertInvitationEntity(connection,entity,addresses,localtolls)
 {
   //console.log(entity.InvTime,entity.EndTime);
@@ -183,6 +228,7 @@ if(connection==null) {
 
 }
 
+/*This is not used now*/
 function InsertMeetingInvitees (EmailAddresses,Invitees,invID,addresses,i,callback) {
 if(i<addresses.length){
   
@@ -231,6 +277,8 @@ else{
 }
   // body...
 }
+
+/*This is not used now*/
 function insertInvitationEntity_back(connection,entity,addresses,localtolls)
 {
   //console.log(entity.InvTime,entity.EndTime);
@@ -350,7 +398,8 @@ function minutesDiff(start, end){
   return parseInt(diff/(1000*60));
 }
 
-/// Method to send/push notification to MPNS
+/* Method to send/push notification to MPNS. 
+MPNS push tile to Phone Device if The Device is connected to MPNS linked by Live account */
 function PushNotification(connection,notificationRemainderTime)
 {
 
@@ -482,17 +531,7 @@ function PushNotification(connection,notificationRemainderTime)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-/// Exposes all methods to call outsite this file, using its object   
+/* Exposes all methods to call outsite this file, using its object */
 exports.insertInvitationEntity=insertInvitationEntity;
 exports.PushNotification=PushNotification;
 exports.ProcessInvitees=ProcessInvitees;
