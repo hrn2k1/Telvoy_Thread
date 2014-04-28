@@ -84,6 +84,8 @@ function ProcessInvitees(dbConnection,addresses,callback){
                           //console.log(j,Atts);
                          mailer.sendMail(config.ATTENDEE_EMAIL_SUBJECT,config.ATTENDEE_EMAIL_BODY,result1.EmailID);
                          utility.log('Parsed Success email sent to '+result1.EmailID);
+                         SendToastNotification(dbConnection,result1.UserID,config.ATTENDEE_EMAIL_SUBJECT,config.ATTENDEE_EMAIL_BODY,null);
+                         
                          if(j+1==addresses.length)
                          {
                           if(callback !=null) callback(null,Atts);
