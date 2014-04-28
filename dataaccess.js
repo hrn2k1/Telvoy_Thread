@@ -12,6 +12,7 @@ function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
 
+
 function SendToastNotification(connection,userID,boldText,normalText,callback){
   if(connection==null) {
       utility.log('database connection is null','ERROR');
@@ -25,20 +26,21 @@ function SendToastNotification(connection,userID,boldText,normalText,callback){
                   }
                   else
                   {
-                    if(debug==true)
-                    {
-                    utility.log('Invitees Push URL Info for sending Toast' );
+                    // if(debug==true)
+                    // {
+                    utility.log('Invitees Push URL Info for sending Toast. User: '+userID );
                     utility.log(registration);
-                    }
+                    // }
                     if(registration != null)
                     {
                       var pushUri=registration.Handle;
                        mpns.sendToast(pushUri,boldText,normalText,function(error,result){
                         if(error){
-                          utility.log("Can't Send Toast to User "+userID+" Error: "+error); 
+                          utility.log("Can't Send Toast to User "+userID+" Error:"); 
+                          utility.log(error);
                         }
                         else{
-                           utility.log('Successfully Sent Toast to User '+userID+' and result ');
+                           utility.log('Successfully Sent Toast to User '+userID+' and result:');
                            utility.log(result); 
                         }
                         if(callback !=null)
@@ -51,6 +53,7 @@ function SendToastNotification(connection,userID,boldText,normalText,callback){
 
 
 }
+
 
 /*Recurssive Method to handle Invitees. 
 Due to IO non-blocking feature of Node.js normal looping is not applicable here*/
