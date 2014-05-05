@@ -502,7 +502,7 @@ function PushNotification(connection,notificationRemainderTime)
                       if(md <= RemainderMinute && RemainderMinute >-1 ){
                         //pushInfo["PushUrl"] = registrations.Handle;
                         var tileObj = {
-                                  'title':'', // inv.Subject,
+                                  'title':inv.Subject, // inv.Subject,
                                   'backTitle': moment(inv.InvTime).date()==moment().date()? 'Today':'Tomorrow', //"Next Conference",
                                   'backBackgroundImage': "/Assets/Tiles/BackTileBackground.png",
                                   'backContent': inv.Subject+'\n'+ moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
