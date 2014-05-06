@@ -2,8 +2,7 @@ var mpns = require('mpns');
 var config=require('./config.js');
 var utility=require('./utility.js');
 var moment = require('moment');
- var mailer= require('./mailsender.js');
-
+var mailer= require('./mailsender.js');
 
 var debug = config.IS_DEBUG_MODE;
 
@@ -12,52 +11,47 @@ function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
 
-
-function SendToastNotification(connection,userID,boldText,normalText,callback){
-  if(connection==null) {
+function SendToastNotification(connection, userID, boldText, normalText, callback){
+  if(connection == null) {
       utility.log('database connection is null','ERROR');
       return;
   }
   var Registrations = connection.collection('Registrations');
       Registrations.findOne({UserID: userID.trim()}, function(error, registration) {
-                  if(error)
-                  {
-                    utility.log("find registration error: " + error, 'ERROR');
-                  }
-                  else
-                  {
-                    // if(debug==true)
-                    // {
-                    utility.log('Invitees Push URL Info for sending Toast. User: '+userID );
-                    utility.log(registration);
-                    // }
-                    if(registration != null)
-                    {
-                      var pushUri=registration.Handle;
-                       mpns.sendToast(pushUri,boldText,normalText,function(error,result){
-                        if(error){
-                          utility.log("Can't Send Toast to User "+userID+" Error:"); 
-                          utility.log(error);
-                        }
-                        else{
-                           utility.log('Successfully Sent Toast to User '+userID+' and result:');
-                           utility.log(result); 
-                        }
-                        if(callback !=null)
-                          callback(error,result);
-                    });
-                    }
-                  }
-                });
-
-
-
+          if(error)
+          {
+            utility.log("find registration error: " + error, 'ERROR');
+          }
+          else
+          {
+            // if(debug==true)
+            // {
+            utility.log('Invitees Push URL Info for sending Toast. User: ' + userID );
+            utility.log(registration);
+            // }
+            if(registration != null)
+            {
+              var pushUri = registration.Handle;
+               mpns.sendToast(pushUri,boldText,normalText,function(error,result){
+                if(error){
+                    utility.log("Can't Send Toast to User " + userID + " Error:"); 
+                    utility.log(error);
+                }
+                else{
+                   utility.log('Successfully Sent Toast to User ' + userID + ' and result:');
+                   utility.log(result); 
+                }
+                if(callback != null)
+                  callback(error,result);
+            });
+            }
+          }
+        });
 }
-
 
 /*Recurssive Method to handle Invitees. 
 Due to IO non-blocking feature of Node.js normal looping is not applicable here*/
-function ProcessInvitees(dbConnection,addresses,callback){
+function ProcessInvitees(dbConnection, addresses, callback){
 
   if(dbConnection==null) {
       utility.log('database connection is null','ERROR');
@@ -69,33 +63,32 @@ function ProcessInvitees(dbConnection,addresses,callback){
   addresses.forEach(function(addr,j){
 
       EmailAddresses.findOne({EmailID: addr.address,Verified:true}, function(error, result1){
-                    if(!error){
-                      if(result1==null){
-                        utility.log(addr.address+' not found in white list');
-                          //send email
-                        mailer.sendMail(config.NOT_WHITELISTED_EMAIL_SUBJECT,config.NOT_WHITELISTED_EMAIL_BODY,addr.address);
-                        if(j+1==addresses.length)
-                         {
-                          if(callback !=null) callback(null,Atts);
-                         }
-                        }
-                      else{
-                         Atts.push( {"UserID": result1.UserID,"EmailID": result1.EmailID} );
-                          //console.log(j,Atts);
-                         mailer.sendMail(config.ATTENDEE_EMAIL_SUBJECT,config.ATTENDEE_EMAIL_BODY,result1.EmailID);
-                         utility.log('Parsed Success email sent to '+result1.EmailID);
-                         SendToastNotification(dbConnection,result1.UserID,config.ATTENDEE_EMAIL_SUBJECT,config.ATTENDEE_EMAIL_BODY,null);
-                         
-                         if(j+1==addresses.length)
-                         {
-                          if(callback !=null) callback(null,Atts);
-                         }
-                      }
-                    }
-                      else{
-                        if(callback !=null) callback(error,null);
-                      }
-                });
+          if(!error){
+            if(result1==null){
+              utility.log(addr.address+' not found in white list');
+                //send email
+              mailer.sendMail(config.NOT_WHITELISTED_EMAIL_SUBJECT,config.NOT_WHITELISTED_EMAIL_BODY,addr.address);
+              if(j+1==addresses.length)
+               {
+                if(callback !=null) callback(null,Atts);
+               }
+              }
+            else{
+               Atts.push( {"UserID": result1.UserID,"EmailID": result1.EmailID} );
+                //console.log(j,Atts);
+               mailer.sendMail(config.ATTENDEE_EMAIL_SUBJECT,config.ATTENDEE_EMAIL_BODY,result1.EmailID);
+               utility.log('Parsed Success email sent to '+result1.EmailID);
+               SendToastNotification(dbConnection,result1.UserID,config.ATTENDEE_EMAIL_SUBJECT,config.ATTENDEE_EMAIL_BODY,null);
+               if(j+1==addresses.length)
+               {
+                if(callback !=null) callback(null,Atts);
+               }
+            }
+          }
+            else{
+              if(callback !=null) callback(error,null);
+            }
+      });
 });
 
 
@@ -232,7 +225,6 @@ if(connection==null) {
 
 
 }
-
 /*This is not used now*/
 function InsertMeetingInvitees (EmailAddresses,Invitees,invID,addresses,i,callback) {
 if(i<addresses.length){
@@ -300,7 +292,6 @@ function insertInvitationEntity_back(connection,entity,addresses,localtolls)
 
 if(connection==null) {
       utility.log('database connection is null','ERROR');
-     
       return;
   }
   var Invitations = connection.collection('Invitations');
@@ -389,12 +380,6 @@ if(connection==null) {
 }
 
 
-
-
-
-
-
-
 function addMinutes(date, minutes) {
   return new Date(date.getTime() + minutes*60000);
 }
@@ -403,23 +388,51 @@ function minutesDiff(start, end){
   return parseInt(diff/(1000*60));
 }
 
+function csvToArray(csvString){
+  // The array we're going to build
+  var csvArray   = [];
+  // Break it into rows to start
+  var csvRows    = csvString.split(/\n/);
+  // Take off the first line to get the headers, then split that into an array
+  var csvHeaders = csvRows.shift().split(',');
+
+  // Loop through remaining rows
+  for(var rowIndex = 0; rowIndex < csvRows.length; ++rowIndex){
+    var rowArray  = csvRows[rowIndex].split(',');
+
+    // Create a new row object to store our data.
+    var rowObject = csvArray[rowIndex] = {};
+    
+    // Then iterate through the remaining properties and use the headers as keys
+    for(var propIndex = 0; propIndex < rowArray.length; ++propIndex){
+      // Grab the value from the row array we're looping through...
+      var propValue =   rowArray[propIndex].replace(/^"|"$/g,'');
+      // ...also grab the relevant header (the RegExp in both of these removes quotes)
+      var propLabel = csvHeaders[propIndex].replace(/^"|"$/g,'');;
+
+      rowObject[propLabel] = propValue;
+    }
+  }
+
+  return csvArray;
+}
+
+
+
 /* Method to send/push notification to MPNS. 
 MPNS push tile to Phone Device if The Device is connected to MPNS linked by Live account */
-function PushNotification(connection,notificationRemainderTime)
+function PushNotification(connection, notificationRemainderTime)
 {
-
-
-  if(connection==null) {
+  if(connection == null) {
       utility.log('database connection is null','ERROR');
-     
       return;
   }
 
   var Invitations = connection.collection('Invitations');
   var Invitees = connection.collection('Invitees');
   var Registrations = connection.collection('Registrations');
-  
-  var sttime =  addMinutes(new Date(), 0);
+
+  var sttime = addMinutes(new Date(), 0);
   //console.log(sttime);
   // var edtime = addMinutes(new Date(), notificationRemainderTime/(1000*60));
   var edtime = addMinutes(new Date(), (24*60));
@@ -435,14 +448,13 @@ function PushNotification(connection,notificationRemainderTime)
     if(error)
     {
       utility.log("find Invitations error: " + error, 'ERROR');
-       
     }
     else
     {
       if(debug==true)
       {
-      utility.log("eligible invitations for push");
-      utility.log(invites);
+          utility.log("eligible invitations for push");
+          utility.log(invites);
       }
       var pushInfo = [];
       //for (var i = 0; i < invites.length; i++) {
@@ -450,82 +462,110 @@ function PushNotification(connection,notificationRemainderTime)
         // pushInfo["Subject"] = invites[i].Subject;
         // pushInfo["Agenda"] = invites[i].Agenda;
         // pushInfo["InvTime"] = invites[i].InvTime;
+        // Invitations_ids.push(invites[i]._id);
 
-          // Invitations_ids.push(invites[i]._id);
-          Invitees.find({Invitations_id: inv._id}).toArray( function(error, invitees) {
-            if(error)
-            {
-              utility.log("find Invitees error: " + error, 'ERROR');
-               
-            }
-            else
-            {
-              if(debug==true)
-              {
-              utility.log("eligible invitees for push");
-              utility.log(invitees);
-              }
+          // Invitees.find({Invitations_id: inv._id}).toArray( function(error, invitees) {
+          //   if(error)
+          //   {
+          //     utility.log("find Invitees error: " + error, 'ERROR');
+          //   }
+          //   else
+          //   {
+          //     if(debug==true)
+          //     {
+          //     utility.log("eligible invitees for push");
+          //     utility.log(invitees);
+          //     }
 
-              //for (var j = 0; j < invitees.length; j++) {
-                invitees.forEach(function(att,j){
+          //     //for (var j = 0; j < invitees.length; j++) {
+          //       invitees.forEach(function(att,j){
+
                 //pushInfo["UserID"] = invitees[j].UserID;
+              // console.log("--------XXXXXXXXX-------");
+              // console.log(inv.ToEmails);
 
-                Registrations.findOne({UserID: att.UserID.trim()}, function(error, registrations) {
-                  if(error)
-                  {
-                    utility.log("find registration error: " + error, 'ERROR');
-                     
-                  }
-                  else
-                  {
-                    if(debug==true)
-                    {
-                    utility.log('Invitees Push URL Info' );
-                    utility.log(registrations);
-                    }
-                    // console.log("Inv ID: "+invites[i]._id);
-                    // console.log(invitees[j]);
-                    // console.log(registrations); RemainderMinute
-                    if(registrations != null)
-                    {
+              var toEmails = inv.ToEmails.split(',');
 
-                        //console.log(inv);
-                      var RemainderMinute = registrations.RemainderMinute;
-                       var md = minutesDiff( inv.InvTime,new Date());
-                      if(md<=50){
-                      utility.log("Remainder Time for "+att.UserID +" is "+RemainderMinute+" minutes");
-                     
-                      utility.log("meeting "+inv.Subject+" of "+att.UserID+" remaining minute: "+md);
-                      
-                      
-
-                      if(md <= RemainderMinute && RemainderMinute >-1 ){
-                        //pushInfo["PushUrl"] = registrations.Handle;
-                        var tileObj = {
-                                  'title':inv.Subject, // inv.Subject,
-                                  'backTitle': moment(inv.InvTime).date()==moment().date()? 'Today':'Tomorrow', //"Next Conference",
-                                  'backBackgroundImage': "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent': inv.Subject+'\n'+ moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
-                                  };
-                        mpns.sendTile(registrations.Handle, tileObj, function(){utility.log('Pushed to ' + att.UserID+" for "+inv.Subject);});
+              toEmails.forEach(function(te, i){
+                  Registrations.findOne({UserID: te.trim()}, function(error, registrations) {
+                      if(error)
+                      {
+                          console.log("find registration error: " + error, 'ERROR');
                       }
-                    }
-                    
-                      // 
-                    } 
-                    // else {
-                    //   pushInfo["PushUrl"] =null;
-                    //   utility.log("Can't find push URL for "+pushInfo["UserID"]+" . so can't push notification.",'WARNING');
-                    // }
-                    // console.log(pushInfo);
-
-                  }
-                });
+                      else
+                      {
+                        if(debug == true)
+                          {
+                            utility.log('Invitees Push URL Info' );
+                            utility.log(registrations);
+                          }
+                          if(registrations != null)
+                          {
+                            var tileObj = {
+                              'title' : '', // inv.Subject,
+                              'backTitle' : moment(inv.InvTime).date() == moment().date() ? 'Today' : 'Tomorrow', // "Next Conference",
+                              'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
+                              'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
+                            };
+                            mpns.sendTile(registrations.Handle, tileObj, function(){
+                              utility.log('Pushed to ' + te + " for " + inv.Subject);
+                            });
+                          }
+                          else {
+                            utility.log("Can't find push URL for " + te + ". so can't push notification.",'WARNING');
+                          }
+                      }
+                  });
               });
-            }
-          });
-          
-        }); 
+
+                // Registrations.findOne({UserID: att.UserID.trim()}, function(error, registrations) {
+                //   if(error)
+                //   {
+                //     utility.log("find registration error: " + error, 'ERROR');
+                //   }
+                //   else
+                //   {
+                //     if(debug==true)
+                //     {
+                //     utility.log('Invitees Push URL Info' );
+                //     utility.log(registrations);
+                //     }
+                //     // console.log("Inv ID: "+invites[i]._id);
+                //     // console.log(invitees[j]);
+                //     // console.log(registrations); RemainderMinute
+                //     if(registrations != null)
+                //     {
+                //       // console.log(inv);
+                //       var RemainderMinute = registrations.RemainderMinute;
+                //       var md = minutesDiff( inv.InvTime,new Date());
+                //       if(md<=50){
+                //           utility.log("Remainder Time for "+att.UserID +" is "+RemainderMinute+" minutes");
+                //           utility.log("meeting "+inv.Subject+" of "+att.UserID+" remaining minute: "+md);
+
+                //           if(md <= RemainderMinute && RemainderMinute > -1 ){
+                //               //pushInfo["PushUrl"] = registrations.Handle;
+                //               var tileObj = {
+                //                         'title' : '', // inv.Subject,
+                //                         'backTitle' : moment(inv.InvTime).date() == moment().date() ? 'Today' : 'Tomorrow', // "Next Conference",
+                //                         'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
+                //                         'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
+                //                         };
+                //               mpns.sendTile(registrations.Handle, tileObj, function(){utility.log('Pushed to ' + att.UserID + " for " + inv.Subject);});
+                //           }
+                //       }
+                //     } 
+                //     // else {
+                //     //   pushInfo["PushUrl"] =null;
+                //     //   utility.log("Can't find push URL for "+pushInfo["UserID"]+" . so can't push notification.",'WARNING');
+                //     // }
+                //     // console.log(pushInfo);
+                //   }
+                // });
+          //     });
+          //   }
+          // });
+
+        });
         //return JSON.stringify(result);
         // response.setHeader("content-type", "text/plain";
         // response.write("{\"Tolls\":" + JSON.stringify(result.Toll) + "}";
@@ -534,6 +574,7 @@ function PushNotification(connection,notificationRemainderTime)
     });
 
 }
+
 
 
 /* Exposes all methods to call outsite this file, using its object */
