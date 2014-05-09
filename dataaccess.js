@@ -388,36 +388,6 @@ function minutesDiff(start, end){
   return parseInt(diff/(1000*60));
 }
 
-function csvToArray(csvString){
-  // The array we're going to build
-  var csvArray   = [];
-  // Break it into rows to start
-  var csvRows    = csvString.split(/\n/);
-  // Take off the first line to get the headers, then split that into an array
-  var csvHeaders = csvRows.shift().split(',');
-
-  // Loop through remaining rows
-  for(var rowIndex = 0; rowIndex < csvRows.length; ++rowIndex){
-    var rowArray  = csvRows[rowIndex].split(',');
-
-    // Create a new row object to store our data.
-    var rowObject = csvArray[rowIndex] = {};
-    
-    // Then iterate through the remaining properties and use the headers as keys
-    for(var propIndex = 0; propIndex < rowArray.length; ++propIndex){
-      // Grab the value from the row array we're looping through...
-      var propValue =   rowArray[propIndex].replace(/^"|"$/g,'');
-      // ...also grab the relevant header (the RegExp in both of these removes quotes)
-      var propLabel = csvHeaders[propIndex].replace(/^"|"$/g,'');;
-
-      rowObject[propLabel] = propValue;
-    }
-  }
-
-  return csvArray;
-}
-
-
 
 /* Method to send/push notification to MPNS. 
 MPNS push tile to Phone Device if The Device is connected to MPNS linked by Live account */
@@ -460,44 +430,20 @@ function PushNotification(connection, notificationRemainderTime)
           utility.log("eligible invitations for push");
           utility.log(invites);
       }
-      var pushInfo = [];
-      //for (var i = 0; i < invites.length; i++) {
+        // var pushInfo = [];
+        var toEmailsString = '';
         invites.forEach(function(inv,i){
-        // pushInfo["Subject"] = invites[i].Subject;
-        // pushInfo["Agenda"] = invites[i].Agenda;
-        // pushInfo["InvTime"] = invites[i].InvTime;
-        // Invitations_ids.push(invites[i]._id);
-
-          // Invitees.find({Invitations_id: inv._id}).toArray( function(error, invitees) {
-          //   if(error)
-          //   {
-          //     utility.log("find Invitees error: " + error, 'ERROR');
-          //   }
-          //   else
-          //   {
-          //     if(debug==true)
-          //     {
-          //     utility.log("eligible invitees for push");
-          //     utility.log(invitees);
-          //     }
-
-          //     //for (var j = 0; j < invitees.length; j++) {
-          //       invitees.forEach(function(att,j){
-
-                //pushInfo["UserID"] = invitees[j].UserID;
-              // console.log("--------XXXXXXXXX-------");
+              // console.log("--------Invitations-------");
               // console.log(inv.Subject);
-
-
-
-
               var toEmails = inv.ToEmails.split(',');
-              var isOneTime = false;
+              toEmailsString += inv.ToEmails.trim() + ','
 
               toEmails.forEach(function(te, i){
+
                   // Registrations.find({UserID: { $ne: te.trim() } }, function(error, reg) {
                   //     console.log(reg.UserID);
                   // })
+                
                   Registrations.findOne({UserID: te.trim()}, function(error, registrations) {
                       if(error)
                       {
@@ -512,11 +458,12 @@ function PushNotification(connection, notificationRemainderTime)
                           }
                           if(registrations != null)
                           {
+                            console.log( inv.Subject + " ==== " + te);
                             // var RemainderMinute = registrations.RemainderMinute;
                             // var md = minutesDiff( inv.InvTime,new Date());
                             // if(md<=50){
-                                utility.log("Remainder Time for " + te + " is " + RemainderMinute + " minutes");
-                                utility.log("meeting " + inv.Subject + " of " + te + " remaining minute: " + md);
+                                // utility.log("Remainder Time for " + te + " is " + RemainderMinute + " minutes");
+                                // utility.log("meeting " + inv.Subject + " of " + te + " remaining minute: " + md);
 
                                 // if(md <= RemainderMinute && RemainderMinute > -1 ){
                                 var tileObj = {
@@ -536,40 +483,7 @@ function PushNotification(connection, notificationRemainderTime)
                           }
                       }
                   });
-
-                  if(!isOneTime) {
-                    // collection.find({'GroupName':gname}).toArray(function(err, docs) {
-                    Registrations.find({ UserID: { $ne: te.trim() } }).toArray(function(error, regs) {
-                        // console.log(regs.length);
-                        if(error)
-                        {
-                            utility.log("Find registration error: " + error, 'ERROR');
-                        }
-                        else
-                        {
-                            if(debug == true)
-                            {
-                                utility.log('Registration Push URL Info' );
-                                utility.log(regs);
-                            }
-                            regs.forEach(function(reg, i){
-                                // console.log(reg.UserID);
-                                var tileObj = {
-                                  'title' : null,
-                                  'backTitle' : null,
-                                  'backBackgroundImage' : "",
-                                  'backContent' : null
-                                };
-                                mpns.sendTile(reg.Handle, tileObj, function(){
-                                  utility.log('Pushed null to ' + reg.UserID + " for tile");
-                                });
-                            });
-                        }
-                    })
-                    isOneTime = true;
-                  }
               });
-
                 // Registrations.findOne({UserID: att.UserID.trim()}, function(error, registrations) {
                 //   if(error)
                 //   {
@@ -618,6 +532,37 @@ function PushNotification(connection, notificationRemainderTime)
           // });
 
         });
+
+        var toEmailsArray = toEmailsString.split(',');
+
+        Registrations.find({ UserID: { $nin: toEmailsArray } }).toArray(function(error, regs) {
+          // console.log(regs.length);
+          if(error)
+          {
+              utility.log("Find registration error: " + error, 'ERROR');
+          }
+          else
+          {
+              if(debug == true)
+              {
+                  utility.log('Registration Push URL Info' );
+                  utility.log(regs);
+              }
+              regs.forEach(function(reg, i){
+                  // console.log(reg.UserID);
+                  var tileObj = {
+                    'title' : null,
+                    'backTitle' : null,
+                    'backBackgroundImage' : "",
+                    'backContent' : null
+                  };
+                  mpns.sendTile(reg.Handle, tileObj, function(){
+                    utility.log('Pushed null to ' + reg.UserID + " for tile");
+                  });
+              });
+          }
+        });
+
         //return JSON.stringify(result);
         // response.setHeader("content-type", "text/plain";
         // response.write("{\"Tolls\":" + JSON.stringify(result.Toll) + "}";
