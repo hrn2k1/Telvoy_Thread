@@ -526,7 +526,7 @@ function PushNotification(connection, notificationRemainderTime)
                                   'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
                                 mpns.sendTile(registrations.Handle, tileObj, function(){
-                                  console.log('Pushed to ' + te + " for " + inv.Subject);
+                                  utility.log('Pushed to ' + te + " for " + inv.Subject);
                                 });
                             //   }
                             // }
@@ -561,7 +561,7 @@ function PushNotification(connection, notificationRemainderTime)
                                   'backContent' : null
                                 };
                                 mpns.sendTile(reg.Handle, tileObj, function(){
-                                  console.log('Pushed null to ' + reg.UserID + " for tile");
+                                  utility.log('Pushed null to ' + reg.UserID + " for tile");
                                 });
                             });
                         }
