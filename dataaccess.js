@@ -443,6 +443,10 @@ function PushNotification(connection, notificationRemainderTime)
       $lte: edtime
     }
   }
+
+  // Registrations.find(function(error, reg) {
+  //     console.log(reg.UserID);
+  // })
  
   Invitations.find(invtime).toArray( function(error, invites) {
     if(error)
@@ -482,15 +486,22 @@ function PushNotification(connection, notificationRemainderTime)
 
                 //pushInfo["UserID"] = invitees[j].UserID;
               // console.log("--------XXXXXXXXX-------");
-              // console.log(inv.ToEmails);
+              // console.log(inv.Subject);
+
+
+
 
               var toEmails = inv.ToEmails.split(',');
+              var isOneTime = false;
 
               toEmails.forEach(function(te, i){
+                  // Registrations.find({UserID: { $ne: te.trim() } }, function(error, reg) {
+                  //     console.log(reg.UserID);
+                  // })
                   Registrations.findOne({UserID: te.trim()}, function(error, registrations) {
                       if(error)
                       {
-                          console.log("find registration error: " + error, 'ERROR');
+                          utility.log("find registration error: " + error, 'ERROR');
                       }
                       else
                       {
@@ -501,21 +512,62 @@ function PushNotification(connection, notificationRemainderTime)
                           }
                           if(registrations != null)
                           {
-                            var tileObj = {
-                              'title' : '', // inv.Subject,
-                              'backTitle' : moment(inv.InvTime).date() == moment().date() ? 'Today' : 'Tomorrow', // "Next Conference",
-                              'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                              'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
-                            };
-                            mpns.sendTile(registrations.Handle, tileObj, function(){
-                              utility.log('Pushed to ' + te + " for " + inv.Subject);
-                            });
+                            // var RemainderMinute = registrations.RemainderMinute;
+                            // var md = minutesDiff( inv.InvTime,new Date());
+                            // if(md<=50){
+                                utility.log("Remainder Time for " + te + " is " + RemainderMinute + " minutes");
+                                utility.log("meeting " + inv.Subject + " of " + te + " remaining minute: " + md);
+
+                                // if(md <= RemainderMinute && RemainderMinute > -1 ){
+                                var tileObj = {
+                                  'title' : '', // inv.Subject,
+                                  'backTitle' : moment(inv.InvTime).date() == moment().date() ? 'Today' : 'Tomorrow', // "Next Conference",
+                                  'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
+                                  'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
+                                };
+                                mpns.sendTile(registrations.Handle, tileObj, function(){
+                                  console.log('Pushed to ' + te + " for " + inv.Subject);
+                                });
+                            //   }
+                            // }
                           }
                           else {
                             utility.log("Can't find push URL for " + te + ". so can't push notification.",'WARNING');
                           }
                       }
                   });
+
+                  if(!isOneTime) {
+                    // collection.find({'GroupName':gname}).toArray(function(err, docs) {
+                    Registrations.find({ UserID: { $ne: te.trim() } }).toArray(function(error, regs) {
+                        // console.log(regs.length);
+                        if(error)
+                        {
+                            utility.log("Find registration error: " + error, 'ERROR');
+                        }
+                        else
+                        {
+                            if(debug == true)
+                            {
+                                utility.log('Registration Push URL Info' );
+                                utility.log(regs);
+                            }
+                            regs.forEach(function(reg, i){
+                                // console.log(reg.UserID);
+                                var tileObj = {
+                                  'title' : null,
+                                  'backTitle' : null,
+                                  'backBackgroundImage' : "",
+                                  'backContent' : null
+                                };
+                                mpns.sendTile(reg.Handle, tileObj, function(){
+                                  console.log('Pushed null to ' + reg.UserID + " for tile");
+                                });
+                            });
+                        }
+                    })
+                    isOneTime = true;
+                  }
               });
 
                 // Registrations.findOne({UserID: att.UserID.trim()}, function(error, registrations) {
