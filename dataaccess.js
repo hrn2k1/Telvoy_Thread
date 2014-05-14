@@ -556,9 +556,9 @@ function PushNotification(connection, notificationRemainderTime)
                     'backBackgroundImage' : "",
                     'backContent' : null
                   };
-                  mpns.sendTile(reg.Handle, tileObj, function(){
-                    // utility.log('Pushed null to ' + reg.UserID + " for tile");
-                  });
+                  // mpns.sendTile(reg.Handle, tileObj, function(){
+                  //   // utility.log('Pushed null to ' + reg.UserID + " for tile");
+                  // });
               });
           }
         });
