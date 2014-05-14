@@ -472,9 +472,9 @@ function PushNotification(connection, notificationRemainderTime)
                                   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
                                   'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
-                                mpns.sendTile(registrations.Handle, tileObj, function(){
-                                  utility.log('Pushed to ' + te + " for " + inv.Subject);
-                                });
+                                // mpns.sendTile(registrations.Handle, tileObj, function(){
+                                //   utility.log('Pushed to ' + te + " for " + inv.Subject);
+                                // });
                             //   }
                             // }
                           }
