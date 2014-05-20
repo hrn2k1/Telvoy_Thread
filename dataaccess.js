@@ -467,11 +467,18 @@ function PushNotification(connection, notificationRemainderTime)
                                 // utility.log("meeting " + inv.Subject + " of " + te + " remaining minute: " + md);
 
                                 // if(md <= RemainderMinute && RemainderMinute > -1 ){
+                                // var tileObj = {
+                                //   'title' : '', // inv.Subject,
+                                //   'backTitle' : moment(inv.InvTime).date() == moment().date() ? 'Today' : 'Tomorrow', // "Next Conference",
+                                //   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
+                                //   'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
+                                // };
+                                var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY' : 'TOMORROW';
                                 var tileObj = {
                                   'title' : '', // inv.Subject,
-                                  'backTitle' : moment(inv.InvTime).date() == moment().date() ? 'Today' : 'Tomorrow', // "Next Conference",
+                                  'backTitle' : 'Telvoy', // "Next Conference",
                                   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
+                                  'backContent' : backHeader + inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
                                 mpns.sendTile(registrations.Handle, tileObj, function(){
                                   utility.log('Pushed to ' + te + " for " + inv.Subject);
