@@ -51,7 +51,7 @@ function SendToastNotification(connection, userID, boldText, normalText, callbac
 
 /*Recurssive Method to handle Invitees. 
 Due to IO non-blocking feature of Node.js normal looping is not applicable here*/
-function ProcessInvitees(dbConnection, addresses, callback){
+function ProcessInvitees(dbConnection, addresses, mailSubject, callback){
 
   if(dbConnection==null) {
       utility.log('database connection is null','ERROR');
@@ -76,10 +76,12 @@ function ProcessInvitees(dbConnection, addresses, callback){
             else{
                Atts.push( {"UserID": result1.UserID,"EmailID": result1.EmailID} );
                 //console.log(j,Atts);
-               var attendeeEmailSubject = config.ATTENDEE_EMAIL_SUBJECT + ' ID # ' + result1._id;
-               mailer.sendMail(attendeeEmailSubject, config.ATTENDEE_EMAIL_BODY,result1.EmailID);
-               utility.log('Parsed Success email sent to '+result1.EmailID);
-               SendToastNotification(dbConnection,result1.UserID,config.ATTENDEE_EMAIL_SUBJECT,config.ATTENDEE_EMAIL_BODY,null);
+               var attendeeEmailSubject = 'Telvoy: Invitation "' + mailSubject + '" parsed.';
+               var attendeeEmailBody = 'Your meeting schedule with given subject "' + mailSubject + '" has been parsed successfully.';
+               // console.log(attendeeEmailSubject);
+               mailer.sendMail(attendeeEmailSubject, attendeeEmailBody,result1.EmailID);
+               utility.log('Parsed Success email sent to ' + result1.EmailID);
+               SendToastNotification(dbConnection,result1.UserID,attendeeEmailSubject,attendeeEmailBody,null);
                if(j+1==addresses.length)
                {
                 if(callback !=null) callback(null,Atts);
@@ -160,7 +162,8 @@ if(connection==null) {
   else{
     utility.log('Sender(Forwarder) Email '+entity.Forwarder+' is found in whitelist with userID '+sender.UserID);
     //////////////////////Start Invitation Process/////////////
-    ProcessInvitees(connection,addresses,function(error,addrs){
+    var mailSubject = entity.Subject.replace('Fwd: ','');
+    ProcessInvitees(connection,addresses,mailSubject,function(error,addrs){
       if(error){
         utility.log('ProcessInvitees error: '+error);
       }
