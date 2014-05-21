@@ -476,7 +476,7 @@ function PushNotification(connection, notificationRemainderTime)
                                 //   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
                                 //   'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
                                 // };
-                                var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY' : 'TOMORROW';
+                                var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
                                 var tileObj = {
                                   'title' : '', // inv.Subject,
                                   'backTitle' : 'Telvoy', // "Next Conference",
