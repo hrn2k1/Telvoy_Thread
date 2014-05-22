@@ -481,7 +481,7 @@ function PushNotification(connection, notificationRemainderTime)
                                   'title' : '', // inv.Subject,
                                   'backTitle' : 'Telvoy', // "Next Conference",
                                   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent' : backHeader + inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
+                                  'backContent' : backHeader + inv.Subject + '\n' + moment(inv.InvTime.toISOString()).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
                                 mpns.sendTile(registrations.Handle, tileObj, function(){
                                   utility.log('Pushed to ' + te + " for " + inv.Subject);
