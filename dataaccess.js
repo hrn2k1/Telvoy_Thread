@@ -476,17 +476,18 @@ function PushNotification(connection, notificationRemainderTime)
                                 //   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
                                 //   'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
                                 // };
+                                var invSubject = inv.Subject.substring(0, 20) + '...';
                                 var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
                                 var meetingTime = moment(inv.InvTime.toISOString()).format('hh:mm A');
                                 var tileObj = {
                                   'title' : '', // inv.Subject,
                                   'backTitle' : 'Telvoy', // "Next Conference",
                                   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent' : backHeader + '\n' + inv.Subject + '\n' + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
+                                  'backContent' : backHeader + '\n' + invSubject + '\n' + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
-                                // mpns.sendTile(registrations.Handle, tileObj, function(){
-                                //   utility.log('Pushed to ' + te + " for " + inv.Subject);
-                                // });
+                                mpns.sendTile(registrations.Handle, tileObj, function(){
+                                  utility.log('Pushed to ' + te + " for " + inv.Subject);
+                                });
                             //   }
                             // }
                           }
