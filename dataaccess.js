@@ -484,9 +484,9 @@ function PushNotification(connection, notificationRemainderTime)
                                   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
                                   'backContent' : backHeader + '\n' + inv.Subject + '\n' + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
-                                mpns.sendTile(registrations.Handle, tileObj, function(){
-                                  utility.log('Pushed to ' + te + " for " + inv.Subject);
-                                });
+                                // mpns.sendTile(registrations.Handle, tileObj, function(){
+                                //   utility.log('Pushed to ' + te + " for " + inv.Subject);
+                                // });
                             //   }
                             // }
                           }
@@ -568,9 +568,9 @@ function PushNotification(connection, notificationRemainderTime)
                     'backBackgroundImage' : "",
                     'backContent' : null
                   };
-                  mpns.sendTile(reg.Handle, tileObj, function(){
-                    // utility.log('Pushed null to ' + reg.UserID + " for tile");
-                  });
+                  // mpns.sendTile(reg.Handle, tileObj, function(){
+                  //   // utility.log('Pushed null to ' + reg.UserID + " for tile");
+                  // });
               });
           }
         });
