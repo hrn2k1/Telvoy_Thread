@@ -612,7 +612,7 @@ function PushNotification(connection, notificationRemainderTime)
 
   
   Invitations.find(invtime).toArray( function(error, invites) {
-    // console.log(invites);
+     //console.log(invites);
     if(error)
     {
       utility.log("find Invitations error: " + error, 'ERROR');
@@ -628,6 +628,8 @@ function PushNotification(connection, notificationRemainderTime)
               // console.log("--------Invitations-------");
               // console.log(inv.Subject);
               var InvAttendees=inv.Attendees;
+              utility.log('Attendees of Invitation '+inv.Subject);
+              utility.log(InvAttendees);
              InvAttendees.forEach(function(att, i){
                 
                 Registrations.findOne({UserID: att.UserID}, function(error, registrations) {
@@ -644,27 +646,30 @@ function PushNotification(connection, notificationRemainderTime)
                           }
                           if(registrations != null)
                           {
-                            //console.log( inv.Subject + " ==== " + te);
+                            //console.log( inv.Subject + " ==== " + att.UserID+" >>"+registrations.RemainderMinute);
                              var RemainderMinute = registrations.RemainderMinute;
+                             var TZ=registrations.TimeZone==null || registrations.TimeZone=='undefined' || registrations.TimeZone==undefined ?0:registrations.TimeZone;
                              var md = minutesDiff( inv.InvTime,new Date());
+
                              if(md>=0 && md<=50){
-                                utility.log("Remainder Time for " + tt.UserID + " is " + RemainderMinute + " minutes");
-                                 utility.log("meeting " + inv.Subject + " of " + att.UserID + " remaining minute: " + md);
+                                utility.log("Remainder Time for " + att.UserID + " is " + RemainderMinute + " minutes"+" and TZ="+TZ);
+                                 utility.log("meeting " + inv.Subject + " of " + att.UserID + " remaining minute: " + md );
                                 }
                              if( md >=0 && md <= RemainderMinute && RemainderMinute > -1 ){  //within remainder time
-                                 var TZ=registrations.TimeZone==null || registrations.TimeZone=='undefined' || registrations.TimeZone==undefined ?0:registrations.TimeZone;
-
-                                var invSubject = inv.Subject.substring(0, 20) + '...';
+                                 var invSubject = inv.Subject.substring(0, 20) + '...';
                                 var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
                                 var meetingTime = moment(inv.InvTime.toISOString()).add('minutes',TZ*60).format('hh:mm A');
+                                utility.log('Local(client) Invitation Time: '+meetingTime);
                                 var tileObj = {
                                   'title' : '', // inv.Subject,
                                   'backTitle' : 'Telvoy', // "Next Conference",
                                   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
                                   'backContent' : backHeader + '\n' + '\n' + invSubject + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
+                                utility.debug('Tile Object to send');
+                                utility.debug(tileObj);
                                 mpns.sendTile(registrations.Handle, tileObj, function(){
-                                  console.log('Pushed to ' + att.UserID + " for " + inv.Subject);
+                                  utility.log('Pushed to ' + att.UserID + " for " + inv.Subject);
                                 });
                               }
                               else{  // if invitaion time expires then send empty tile to clear
@@ -675,8 +680,9 @@ function PushNotification(connection, notificationRemainderTime)
                                 'backBackgroundImage' : "",
                                 'backContent' : null
                               };
-                             /* mpns.sendTile(registrations.Handle, tileEmptyObj, function(){
-                                 console.log('Pushed null to ' + att.UserID + " for tile");
+                              /*
+                              mpns.sendTile(registrations.Handle, tileEmptyObj, function(){
+                                 utility.log('Pushed null to ' + att.UserID + " for tile");
                               });*/
                               }
                              
@@ -696,7 +702,6 @@ function PushNotification(connection, notificationRemainderTime)
     });
 
 }
-
 /* Exposes all methods to call outsite this file, using its object */
 exports.insertInvitationEntity=insertInvitationEntity;
 exports.PushNotification=PushNotification;
