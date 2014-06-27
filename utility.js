@@ -26,7 +26,7 @@ var dt=new Date();
 if(typeof(msg)=='object')
     msg=JSON.stringify(msg);
 var msgtext=dt.toISOString()+'>> '+ type+': '+msg+'\n';
-//console.log(msgtext);
+console.log(msgtext);
 fs.appendFile(log_filename, msgtext, encoding='utf8', function (err) {
     if (err) {console.log('File Write Error: '+err);}
 });
@@ -46,7 +46,7 @@ var dt=new Date();
 if(typeof(msg)=='object')
     msg=JSON.stringify(msg);
 var msgtext=dt.toISOString()+'>> '+ type+': '+msg+'\n';
-//console.log(msgtext);
+console.log(msgtext);
 fs.appendFile(log_filename, msgtext, encoding='utf8', function (err) {
     if (err) {console.log('File Write Error: '+err);}
 });
@@ -64,7 +64,7 @@ var dt=new Date();
 if(typeof(msg)=='object')
     msg=JSON.stringify(msg);
 var msgtext=dt.toISOString()+'>> '+ type+': '+msg+'\n';
-//console.log(msgtext);
+console.log(msgtext);
 fs.appendFile(log_filename, msgtext, encoding='utf8', function (err) {
     if (err) {console.log('File Write Error: '+err);}
 });
