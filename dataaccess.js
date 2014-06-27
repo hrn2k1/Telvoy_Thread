@@ -675,9 +675,9 @@ function PushNotification(connection, notificationRemainderTime)
                                 'backBackgroundImage' : "",
                                 'backContent' : null
                               };
-                              mpns.sendTile(registrations.Handle, tileEmptyObj, function(){
+                             /* mpns.sendTile(registrations.Handle, tileEmptyObj, function(){
                                  console.log('Pushed null to ' + att.UserID + " for tile");
-                              });
+                              });*/
                               }
                              
                           }
