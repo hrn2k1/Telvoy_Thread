@@ -648,7 +648,7 @@ function PushNotification(connection, notificationRemainderTime)
                              var RemainderMinute = registrations.RemainderMinute;
                              var md = minutesDiff( inv.InvTime,new Date());
                              if(md>=0 && md<=50){
-                                utility.log("Remainder Time for " + te + " is " + RemainderMinute + " minutes");
+                                utility.log("Remainder Time for " + tt.UserID + " is " + RemainderMinute + " minutes");
                                  utility.log("meeting " + inv.Subject + " of " + att.UserID + " remaining minute: " + md);
                                 }
                              if( md >=0 && md <= RemainderMinute && RemainderMinute > -1 ){  //within remainder time
