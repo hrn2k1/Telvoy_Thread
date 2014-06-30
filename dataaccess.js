@@ -61,8 +61,8 @@ function ProcessInvitees(dbConnection, addresses, mailSubject, callback){
   var Atts=[];
   var EmailAddresses = dbConnection.collection('EmailAddresses');
   addresses.forEach(function(addr,j){
-
-      EmailAddresses.findOne({EmailID: addr.address,Verified:true}, function(error, result1){
+      //EmailAddresses.findOne({EmailID: addr.address,Verified:true}, function(error, result1){
+      EmailAddresses.findOne({EmailID: addr.address}, function(error, result1){
           if(!error){
             if(result1==null){
               utility.log(addr.address+' not found in white list');
