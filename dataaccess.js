@@ -662,9 +662,9 @@ function PushNotification(connection, notificationRemainderTime)
                                 utility.log('Local(client) Invitation Time: '+meetingTime);
                                 var tileObj = {
                                   'title' : '', // inv.Subject,
-                                  'backTitle' : 'Telvoy', // "Next Conference",
+                                  'backTitle' : 'TELVOY', // "Next Conference",
                                   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent' : backHeader + '\n' + '\n' + invSubject + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
+                                  'backContent' : backHeader + '\n' + '\n' + invSubject+ '\n'  + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
                                 utility.debug('Tile Object to send');
                                 utility.debug(tileObj);
