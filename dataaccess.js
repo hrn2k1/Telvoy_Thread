@@ -664,7 +664,7 @@ function PushNotification(connection, notificationRemainderTime)
                                   'title' : '', // inv.Subject,
                                   'backTitle' : 'TELVOY', // "Next Conference",
                                   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent' : backHeader + '\n' + '\n' + invSubject+ '\n'  + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
+                                  'backContent' : backHeader + '\n' + invSubject+ '\n'  + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
                                 };
                                 utility.debug('Tile Object to send');
                                 utility.debug(tileObj);
