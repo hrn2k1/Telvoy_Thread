@@ -656,7 +656,7 @@ function PushNotification(connection, notificationRemainderTime)
                                  utility.log("meeting " + inv.Subject + " of " + att.UserID + " remaining minute: " + md );
                                 }
                              if( md >=0 && md <= RemainderMinute && RemainderMinute > -1 ){  //within remainder time
-                                 var invSubject = inv.Subject.substring(0, 15) + '...';
+                                 var invSubject = inv.Subject.substring(0, 20) + '...';
                                 var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
                                 var meetingTime = moment(inv.InvTime.toISOString()).add('minutes',TZ*60).format('hh:mm A');
                                 utility.log('Local(client) Invitation Time: '+meetingTime);
