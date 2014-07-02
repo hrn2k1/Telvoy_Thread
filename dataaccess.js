@@ -671,7 +671,9 @@ function PushNotification(connection, notificationRemainderTime)
                                   'title' : '', 
                                   'backTitle' : 'TELVOY',
                                   'backContent' : backHeader + '\n' + invSubject+ '\n'  + meetingTime,
-                                  'wideBackContent': backHeader + '\n' + InvSubjectLarge+ '\n'  + meetingTime
+                                  'wideBackContent': backHeader + '\n' + InvSubjectLarge+ '\n'  + meetingTime,
+                                  'backBackgroundImage':"Images/logoBackX336.png",
+                                  'wideBackBackgroundImage':"Images/logoBackX691.png"
                                 };
                                 utility.debug('Tile Object to send');
                                 utility.debug(tileObj);
