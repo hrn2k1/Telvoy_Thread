@@ -656,19 +656,27 @@ function PushNotification(connection, notificationRemainderTime)
                                  utility.log("meeting " + inv.Subject + " of " + att.UserID + " remaining minute: " + md );
                                 }
                              if( md >=0 && md <= RemainderMinute && RemainderMinute > -1 ){  //within remainder time
-                                 var invSubject = inv.Subject.substring(0, 20) + '...';
+                                 var invSubject = inv.Subject.length<=23?inv.Subject: inv.Subject.substring(0, 20) + '...';
+                                 var InvSubjectLarge=inv.Subject.length<=46?inv.Subject: inv.Subject.substring(0, 43) + '...';
                                 var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
                                 var meetingTime = moment(inv.InvTime.toISOString()).add('minutes',TZ*60).format('hh:mm A');
                                 utility.log('Local(client) Invitation Time: '+meetingTime);
                                 var tileObj = {
                                   'title' : '', // inv.Subject,
                                   'backTitle' : 'TELVOY', // "Next Conference",
-                                  'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
+                                  //'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
                                   'backContent' : backHeader + '\n' + invSubject+ '\n'  + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
+                                };
+                                var flipTileObj={
+                                  'title' : '', 
+                                  'backTitle' : 'TELVOY',
+                                  'backContent' : backHeader + '\n' + invSubject+ '\n'  + meetingTime,
+                                  'wideBackContent': backHeader + '\n' + InvSubjectLarge+ '\n'  + meetingTime
                                 };
                                 utility.debug('Tile Object to send');
                                 utility.debug(tileObj);
-                                mpns.sendTile(registrations.Handle, tileObj, function(){
+                                //mpns.sendTile(registrations.Handle, tileObj, function(){
+                                mpns.sendFlipTile(registrations.Handle, flipTileObj, function(){
                                   utility.log('Pushed to ' + att.UserID + " for " + inv.Subject);
                                 });
                               }
@@ -678,10 +686,12 @@ function PushNotification(connection, notificationRemainderTime)
                                 'title' : null,
                                 'backTitle' : null,
                                 'backBackgroundImage' : "",
-                                'backContent' : null
+                                'backContent' : null,
+                                'wideBackContent':null
                               };
                               /*
-                              mpns.sendTile(registrations.Handle, tileEmptyObj, function(){
+                             // mpns.sendTile(registrations.Handle, tileEmptyObj, function(){
+                              mpns.sendFlipTile(registrations.Handle, tileEmptyObj, function(){
                                  utility.log('Pushed null to ' + att.UserID + " for tile");
                               });*/
                               }
