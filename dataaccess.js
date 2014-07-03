@@ -600,7 +600,8 @@ function PushNotification(connection, notificationRemainderTime)
   var Invitations = connection.collection('Invitations');
   var Registrations = connection.collection('Registrations');
 
-  var sttime = addMinutes(new Date(), -(24*60));
+  // var sttime = addMinutes(new Date(), -(24*60));
+  var sttime = addMinutes(new Date(), 0);
   var edtime = addMinutes(new Date(), (24*60));
   //console.log(edtime);
   var invtime = {
