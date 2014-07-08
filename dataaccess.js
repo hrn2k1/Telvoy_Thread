@@ -612,7 +612,7 @@ function PushNotification(connection, notificationRemainderTime)
   }
 
   
-  Invitations.find(invtime).toArray( function(error, invites) {
+  Invitations.find(invtime).sort({"InvTime":1}).toArray( function(error, invites) {
      //console.log(invites);
     if(error)
     {
@@ -692,11 +692,11 @@ function PushNotification(connection, notificationRemainderTime)
                                 'backContent' : null,
                                 'wideBackContent':null
                               };
-                              /*
+                              
                              // mpns.sendTile(registrations.Handle, tileEmptyObj, function(){
                               mpns.sendFlipTile(registrations.Handle, tileEmptyObj, function(){
                                  utility.log('Pushed null to ' + att.UserID + " for tile");
-                              });*/
+                              });
                               }
                              
                           }
