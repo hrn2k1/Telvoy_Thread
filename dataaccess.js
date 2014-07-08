@@ -683,7 +683,7 @@ function PushNotification(connection, notificationRemainderTime)
                                   utility.log('Pushed to ' + att.UserID + " for " + inv.Subject);
                                 });
                               }
-                              else{  // if invitaion time expires then send empty tile to clear
+                               else if(md<0){  // if invitaion time expires then send empty tile to clear
 
                                 var tileEmptyObj = {
                                 'title' : null,
