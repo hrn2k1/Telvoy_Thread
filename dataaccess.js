@@ -392,201 +392,41 @@ function minutesDiff(start, end){
   return parseInt(diff/(1000*60));
 }
 
+///////////////////
 
-/* Method to send/push notification to MPNS. 
-MPNS push tile to Phone Device if The Device is connected to MPNS linked by Live account */
-/*
-function PushNotification(connection, notificationRemainderTime)
-{
+function SaveTileInfo(connection,userID,subject,invTime,endTime,pushURL,count,tile,callback){
   if(connection == null) {
       utility.log('database connection is null','ERROR');
       return;
   }
-
-  var Invitations = connection.collection('Invitations');
-  var Invitees = connection.collection('Invitees');
-  var Registrations = connection.collection('Registrations');
-
-  var sttime = addMinutes(new Date(), 0);
-  //console.log(sttime);
-  // var edtime = addMinutes(new Date(), notificationRemainderTime/(1000*60));
-  var edtime = addMinutes(new Date(), (24*60));
-  //console.log(edtime);
-  var invtime = {
-    InvTime: {
-      $gte: sttime,
-      $lte: edtime
-    }
-  }
-
-  // Registrations.find(function(error, reg) {
-  //     console.log(reg.UserID);
-  // })
- 
-  Invitations.find(invtime).toArray( function(error, invites) {
-    if(error)
+   var TileInfo = connection.collection('TileInfo');
+   var TileInfoObj={
+    "UserID":userID,
+    "InvSubject":subject,
+    "InvTime":invTime,
+    "EndTime":endTime,
+    "PushURL":pushURL,
+    "Count":count,
+    "Tile":tile
+   };
+    
+   TileInfo.findOne({"UserID":userID},function(error,tile){
+    if(error){utility.log('error in get TileInfo'+error); return;}
+    if(tile==null)
     {
-      utility.log("find Invitations error: " + error, 'ERROR');
+      TileInfo.insert(TileInfoObj,function(error,result){
+        if(error){utility.log('error in insert TileInfo'+error); return;}
+        if(callback !=null) callback(null,result);
+      });
     }
-    else
-    {
-      if(debug==true)
-      {
-          utility.log("eligible invitations for push");
-          utility.log(invites);
-      }
-        // var pushInfo = [];
-        var toEmailsString = '';
-        invites.forEach(function(inv,i){
-              // console.log("--------Invitations-------");
-              // console.log(inv.Subject);
-              var toEmails = inv.ToEmails.split(',');
-              toEmailsString += inv.ToEmails.trim() + ','
-
-              toEmails.forEach(function(te, i){
-
-                  // Registrations.find({UserID: { $ne: te.trim() } }, function(error, reg) {
-                  //     console.log(reg.UserID);
-                  // })
-                
-                  Registrations.findOne({UserID: te.trim()}, function(error, registrations) {
-                      if(error)
-                      {
-                          utility.log("find registration error: " + error, 'ERROR');
-                      }
-                      else
-                      {
-                        if(debug == true)
-                          {
-                            utility.log('Invitees Push URL Info' );
-                            utility.log(registrations);
-                          }
-                          if(registrations != null)
-                          {
-                            console.log( inv.Subject + " ==== " + te);
-                            // var RemainderMinute = registrations.RemainderMinute;
-                            // var md = minutesDiff( inv.InvTime,new Date());
-                            // if(md<=50){
-                                // utility.log("Remainder Time for " + te + " is " + RemainderMinute + " minutes");
-                                // utility.log("meeting " + inv.Subject + " of " + te + " remaining minute: " + md);
-
-                                // if(md <= RemainderMinute && RemainderMinute > -1 ){
-                                // var tileObj = {
-                                //   'title' : '', // inv.Subject,
-                                //   'backTitle' : moment(inv.InvTime).date() == moment().date() ? 'Today' : 'Tomorrow', // "Next Conference",
-                                //   'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                                //   'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
-                                // };
-                                var invSubject = inv.Subject.substring(0, 20) + '...';
-                                var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
-                                var meetingTime = moment(inv.InvTime.toISOString()).format('hh:mm A');
-                                var tileObj = {
-                                  'title' : '', // inv.Subject,
-                                  'backTitle' : 'Telvoy', // "Next Conference",
-                                  'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                                  'backContent' : backHeader + '\n' + invSubject + '\n' + meetingTime  //inv.Agenda+"("+md+" minutes remaining)"
-                                };
-                                mpns.sendTile(registrations.Handle, tileObj, function(){
-                                  utility.log('Pushed to ' + te + " for " + inv.Subject);
-                                });
-                            //   }
-                            // }
-                          }
-                          else {
-                            utility.log("Can't find push URL for " + te + ". so can't push notification.",'WARNING');
-                          }
-                      }
-                  });
-              });
-                // Registrations.findOne({UserID: att.UserID.trim()}, function(error, registrations) {
-                //   if(error)
-                //   {
-                //     utility.log("find registration error: " + error, 'ERROR');
-                //   }
-                //   else
-                //   {
-                //     if(debug==true)
-                //     {
-                //     utility.log('Invitees Push URL Info' );
-                //     utility.log(registrations);
-                //     }
-                //     // console.log("Inv ID: "+invites[i]._id);
-                //     // console.log(invitees[j]);
-                //     // console.log(registrations); RemainderMinute
-                //     if(registrations != null)
-                //     {
-                //       // console.log(inv);
-                //       var RemainderMinute = registrations.RemainderMinute;
-                //       var md = minutesDiff( inv.InvTime,new Date());
-                //       if(md<=50){
-                //           utility.log("Remainder Time for "+att.UserID +" is "+RemainderMinute+" minutes");
-                //           utility.log("meeting "+inv.Subject+" of "+att.UserID+" remaining minute: "+md);
-
-                //           if(md <= RemainderMinute && RemainderMinute > -1 ){
-                //               //pushInfo["PushUrl"] = registrations.Handle;
-                //               var tileObj = {
-                //                         'title' : '', // inv.Subject,
-                //                         'backTitle' : moment(inv.InvTime).date() == moment().date() ? 'Today' : 'Tomorrow', // "Next Conference",
-                //                         'backBackgroundImage' : "/Assets/Tiles/BackTileBackground.png",
-                //                         'backContent' : inv.Subject + '\n' + moment(inv.InvTime).format('hh:mm A')  //inv.Agenda+"("+md+" minutes remaining)"
-                //                         };
-                //               mpns.sendTile(registrations.Handle, tileObj, function(){utility.log('Pushed to ' + att.UserID + " for " + inv.Subject);});
-                //           }
-                //       }
-                //     } 
-                //     // else {
-                //     //   pushInfo["PushUrl"] =null;
-                //     //   utility.log("Can't find push URL for "+pushInfo["UserID"]+" . so can't push notification.",'WARNING');
-                //     // }
-                //     // console.log(pushInfo);
-                //   }
-                // });
-          //     });
-          //   }
-          // });
-
-        });
-
-        var toEmailsArray = toEmailsString.split(',');
-
-        Registrations.find({ UserID: { $nin: toEmailsArray } }).toArray(function(error, regs) {
-          // console.log(regs.length);
-          if(error)
-          {
-              utility.log("Find registration error: " + error, 'ERROR');
-          }
-          else
-          {
-              if(debug == true)
-              {
-                  utility.log('Registration Push URL Info' );
-                  utility.log(regs);
-              }
-              regs.forEach(function(reg, i){
-                  // console.log(reg.UserID);
-                  var tileObj = {
-                    'title' : null,
-                    'backTitle' : null,
-                    'backBackgroundImage' : "",
-                    'backContent' : null
-                  };
-                  // mpns.sendTile(reg.Handle, tileObj, function(){
-                  //   // utility.log('Pushed null to ' + reg.UserID + " for tile");
-                  // });
-              });
-          }
-        });
-
-        //return JSON.stringify(result);
-        // response.setHeader("content-type", "text/plain";
-        // response.write("{\"Tolls\":" + JSON.stringify(result.Toll) + "}";
-        // response.end();
-      }
-    });
-
+    else{
+      TileInfo.update({"UserID":userID,"InvTime":{$lt:invTime}},TileInfoObj,function(error,result){
+         if(error){utility.log('error in update TileInfo'+error); return;}
+         if(callback !=null) callback(null,result);
+      });
+    }
+   });
 }
-
-*/
 
 /* Method to send/push notification to MPNS. 
 MPNS push tile to Phone Device if The Device is connected to MPNS linked by Live account */
@@ -678,6 +518,8 @@ function PushNotification(connection, notificationRemainderTime)
                                 };
                                 utility.debug('Tile Object to send');
                                 utility.debug(tileObj);
+                                 SaveTileInfo(connection,att.UserID,inv.Subject,inv.InvTime,inv.EndTime,registrations.Handle,0,flipTileObj,null);
+                                
                                 //mpns.sendTile(registrations.Handle, tileObj, function(){
                                 mpns.sendFlipTile(registrations.Handle, flipTileObj, function(){
                                   utility.log('Pushed to ' + att.UserID + " for " + inv.Subject);
