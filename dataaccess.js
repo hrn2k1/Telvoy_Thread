@@ -407,7 +407,9 @@ function SaveTileInfo(connection,userID,subject,invTime,endTime,pushURL,count,ti
     "EndTime":endTime,
     "PushURL":pushURL,
     "Count":count,
-    "Tile":tile
+    "Tile":tile,
+    "CDT": new Date(),
+    "IsExpired":false
    };
     
    TileInfo.findOne({"UserID":userID},function(error,tile){
