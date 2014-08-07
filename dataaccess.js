@@ -432,7 +432,7 @@ function SaveTileInfo(connection,userID,subject,invTime,endTime,pushURL,count,ti
 
 /* Method to send/push notification to MPNS. 
 MPNS push tile to Phone Device if The Device is connected to MPNS linked by Live account */
-function PushNotification(connection, notificationRemainderTime)
+/*function PushNotification(connection, notificationRemainderTime)
 {
   if(connection == null) {
       utility.log('database connection is null','ERROR');
@@ -558,7 +558,158 @@ function PushNotification(connection, notificationRemainderTime)
       }
     });
 
+}*/
+
+/* Method to send/push notification to MPNS. 
+MPNS push tile to Phone Device if The Device is connected to MPNS linked by Live account */
+function PushNotification(connection, notificationRemainderTime)
+{
+  if(connection == null) {
+      utility.log('database connection is null','ERROR');
+      return;
+  }
+
+  var Invitations = connection.collection('Invitations');
+  var Registrations = connection.collection('Registrations');
+
+  var sttime = addMinutes(new Date(), 0);
+  var edtime = addMinutes(new Date(), (24*60));
+  //console.log(edtime);
+  var invtime = {
+    EndTime: {
+      $gte: sttime,
+      $lte: edtime
+    }
+  }
+    var tiles = [];
+    
+ Invitations.find(invtime).sort({"InvTime":1}).toArray( function(error, invites) {
+    // console.log(invites);
+
+    if(error)
+    {
+      utility.log("find Invitations error: " + error, 'ERROR');
+    }
+    else
+    {
+      if(debug==true)
+      {
+          utility.log("eligible invitations for push");
+          utility.log(invites);
+      }
+        invites.forEach(function(inv,i){
+              var InvAttendees=inv.Attendees;
+              utility.log('Attendees of Invitation '+inv.Subject);
+              utility.log(InvAttendees);
+                InvAttendees.forEach(function (att, i){
+                   
+                Registrations.findOne({UserID: att.UserID}, function(error, registrations) {
+                      if(error)
+                      {
+                          utility.log("find registration error: " + error, 'ERROR');
+                      }
+                      else
+                      {
+                        if(debug == true)
+                          {
+                            utility.log('Invitees Push URL Info' );
+                            utility.log(registrations);
+                          }
+                            if (registrations != null) {
+                                sendTile(connection, att.UserID, registrations, function (error, result) {
+
+                                });
+                            }
+                            else {
+                                utility.log("User Registration not found for " + att.UserID);
+                            }
+                      }
+                  });
+              });
+                
+
+        });
+
+        
+      }
+    });
+
 }
+function sendTile(connection,userID,objReg,callback) {
+    if (connection == null) {
+        utility.log('database connection is null', 'ERROR');
+        return;
+    }
+    
+    var Invitations = connection.collection('Invitations');
+    
+    Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : { UserID : userID } } }, { Attendees : 0 }).sort({ InvTime: 1 }).limit(1).toArray(
+     function (error, result) {
+        if (error) {
+            utility.log("Invitations find for send tile error: " + error, 'ERROR');
+            if (callback != null) callback(error, null);
+        }
+          else {
+            utility.log("Recent Invitation for user " + userID);
+            utility.log(result);
+            var inv = null;
+            if (result == null || result.length == 0)
+                inv = null;
+            else
+                inv = result[0];
+
+            var RemainderMinute = objReg.RemainderMinute;
+            var TZ = objReg.TimeZone == null || objReg.TimeZone == 'undefined' || objReg.TimeZone == undefined ?0:objReg.TimeZone;
+            var md = minutesDiff(inv.InvTime, new Date());
+            if (RemainderMinute != -1 && md <= RemainderMinute) {
+                //within remainder time
+                var invSubject = inv.Subject.length <= 23?inv.Subject: inv.Subject.substring(0, 20) + '...';
+                var InvSubjectLarge = inv.Subject.length <= 46?inv.Subject: inv.Subject.substring(0, 43) + '...';
+                var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
+                var meetingTime = moment(inv.InvTime.toISOString()).add('minutes', TZ * 60).format('hh:mm A');
+                utility.log('Local(client) Invitation Time: ' + meetingTime);
+                
+                var flipTileObj = {
+                    'title' : '', 
+                    'backTitle' : 'telvoy',
+                    'backContent' : backHeader + '\n' + invSubject + '\n' + meetingTime,
+                    'wideBackContent': backHeader + '\n' + InvSubjectLarge + '\n' + meetingTime,
+                    'backBackgroundImage': "Images/logoBackX336.png",
+                    'wideBackBackgroundImage': "Images/logoBackX691.png"
+                };
+                utility.debug('Tile Object to send');
+                utility.debug(flipTileObj);
+                mpns.sendFlipTile(objReg.Handle, flipTileObj, function (error, result) {
+                    utility.log('Pushed Tile to ' + att.UserID + " for " + inv.Subject);
+                    if (callback != null) callback(error, result);
+                });
+                
+            }
+            else if (md < 15) {
+                var tileEmptyObj = {
+                    'title' : 'telvoy',
+                    'backTitle' : null,
+                    'backBackgroundImage' : "",
+                    'backContent' : null,
+                    'wideBackContent': null
+                };
+                
+                mpns.sendFlipTile(objReg.Handle, tileEmptyObj, function (error,result) {
+                    utility.log('Pushed empty Tile to ' + att.UserID + " for " + inv.Subject);
+                    if (callback != null) callback(error, result);
+                });
+            }
+            else {
+                utility.log("Can't find push URL for " + att.UserID + ". so can't push notification.", 'WARNING');
+                if (callback != null) callback(null, null);
+            }
+        }
+
+    });
+
+    
+}
+
 /* Exposes all methods to call outsite this file, using its object */
 exports.insertInvitationEntity=insertInvitationEntity;
 exports.PushNotification=PushNotification;
