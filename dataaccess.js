@@ -670,7 +670,7 @@ function sendTile(connection,userID,objReg,callback) {
                 utility.log('Local(client) Invitation Time: ' + meetingTime);
                 
                 var flipTileObj = {
-                    'title' : '', 
+                    'title' : 'telvoy', 
                     'backTitle' : 'telvoy',
                     'backContent' : backHeader + '\n' + invSubject + '\n' + meetingTime,
                     'wideBackContent': backHeader + '\n' + InvSubjectLarge + '\n' + meetingTime,
@@ -701,7 +701,18 @@ function sendTile(connection,userID,objReg,callback) {
             }
             else {
                 utility.log("Can't find push URL for " + att.UserID + ". so can't push notification.", 'WARNING');
-                if (callback != null) callback(null, null);
+                var tileEmptyObj = {
+                    'title' : 'telvoy',
+                    'backTitle' : 'telvoy',
+                    'backBackgroundImage' : "",
+                    'backContent' : 'Forward Webex invitations to upcoming@telvoy.com',
+                    'wideBackContent': 'Forward Webex invitations to upcoming@telvoy.com'
+                };
+                
+                mpns.sendFlipTile(objReg.Handle, tileEmptyObj, function (error, result) {
+                    utility.log('Pushed how to Tile to ' + att.UserID + " for " + inv.Subject);
+                    if (callback != null) callback(error, result);
+                });
             }
         }
 
