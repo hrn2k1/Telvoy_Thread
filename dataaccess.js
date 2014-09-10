@@ -721,7 +721,145 @@ function sendTile(connection,userID,objReg,callback) {
     
 }
 
+/* New Tile Pushing logic*/
+
+function PushTiles(connection){
+
+   if(connection == null) {
+      utility.log('database connection is null','ERROR');
+      return;
+  }
+
+  var Invitations = connection.collection('Invitations');
+  var Registrations = connection.collection('Registrations');
+
+  Registrations.find(invtime).toArray( function(error, regs) {
+
+   if(error)
+      {
+          utility.log("find registrations error: " + error, 'ERROR');
+      }
+      else
+      {
+        if(debug == true)
+          {
+            utility.log('Invitees Push URL Info' );
+            utility.log(regs);
+          }
+
+          regs.forEach(function (reg, i){
+
+            var RemainderMinute = reg.RemainderMinute;
+            var TZ = reg.TimeZone == null || reg.TimeZone == 'undefined' || reg.TimeZone == undefined ?0:reg.TimeZone;
+            var pURL=reg.Handle;
+
+/////////////////////
+
+Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : { UserID : reg.UserID } } }, { Attendees : 0 }).sort({ InvTime: 1 }).limit(1).toArray(
+     function (error, result) {
+        if (error) {
+            utility.log("Invitations find for send tile error: " + error, 'ERROR');
+            //if (callback != null) callback(error, null);
+        }
+          else {
+            utility.log("Recent Invitation for user " + reg.UserID);
+            utility.log(result);
+            var inv = null;
+            if (result == null || result.length == 0)
+                inv = null;
+            else
+                inv = result[0];
+
+              if(inv !=null && RemainderMinute !=-1 ){
+                 var minutesDiffFromEnd=minutesDiff(new Date(),inv.EndTime);
+                 var ttlReminderMinutes= RemainderMinute+minutesDiff(inv.InvTime,inv.EndTime);
+
+                 if(minutesDiffFromEnd <= ttlReminderMinutes)
+                 {
+                   sendMeetingTile(pURL,reg.UserID,inv,TZ);
+                 }
+                 else
+                 {
+                  sendBlankTile(pURL,reg.UserID);
+                 }
+
+              }
+              else
+                 {
+                  sendBlankTile(pURL,reg.UserID);
+                 }
+
+
+              }
+
+});
+//////////////////
+
+
+
+          });
+      }
+
+  });
+    
+
+}
+
+function  sendBlankTile(pURL,userID)
+{
+
+   var flipTileObj = {
+                    'title' : 'telvoy',
+                    'backTitle' : 'telvoy',
+                    'backContent' : 'You currently have no conference calls...',
+                    'wideBackContent': 'You currently have no conference calls scheduled. To populate the list please...',
+                    'backBackgroundImage': "Images/logoBackX336.png",
+                    'wideBackBackgroundImage': "Images/logoBackX691.png"
+                };
+
+    utility.debug('Blank Tile Object to send');
+    utility.debug(flipTileObj);
+    mpns.sendFlipTile(pURL, flipTileObj, function (error, result) {
+
+      if(!error)
+        utility.log('Pushed Blank Tile to ' + userID );
+      else
+        utility.log('Can not push Blank Tile to ' + userID +" Error: "+error);
+        
+    });
+}
+
+function sendMeetingTile(pURL,userID,inv,TZ)
+{
+  var invSubject = inv.Subject.length <= 23?inv.Subject: inv.Subject.substring(0, 20) + '...';
+  var InvSubjectLarge = inv.Subject.length <= 46?inv.Subject: inv.Subject.substring(0, 43) + '...';
+  var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
+  var meetingTime = moment(inv.InvTime.toISOString()).add('minutes', TZ * 60).format('hh:mm A');
+  utility.log('Local(client) Invitation Time: ' + meetingTime);
+   var flipTileObj = {
+                    'title' : 'telvoy', 
+                    'backTitle' : 'telvoy',
+                    'backContent' : backHeader + '\n' + invSubject + '\n' + meetingTime,
+                    'wideBackContent': backHeader + '\n' + InvSubjectLarge + '\n' + meetingTime,
+                    'backBackgroundImage': "Images/logoBackX336.png",
+                    'wideBackBackgroundImage': "Images/logoBackX691.png"
+                };
+    utility.debug('Tile Object to send');
+    utility.debug(flipTileObj);
+    mpns.sendFlipTile(pURL, flipTileObj, function (error, result) {
+
+      if(!error)
+        utility.log('Pushed Tile to ' + userID + " for " + inv.Subject);
+      else
+        utility.log('Can not push Tile to ' + userID + " for " + inv.Subject+" Error: "+error);
+        
+    });
+}
+
+
+
 /* Exposes all methods to call outsite this file, using its object */
 exports.insertInvitationEntity=insertInvitationEntity;
 exports.PushNotification=PushNotification;
 exports.ProcessInvitees=ProcessInvitees;
+exports.PushTiles=PushTiles;
