@@ -1,6 +1,6 @@
 var SITE_ROOT_URL='http://telvoym.azurewebsites.net';
 var THREAD_SITE_URL='http://telvoy.azurewebsites.net'
-var IS_DEBUG_MODE=false;
+var IS_DEBUG_MODE=true;
 var MONGO_CONNECTION_STRING = "mongodb://Telvoy_MongoDb:ZFj.UBl7MvdIsyR4AVOFQVWXAhDSM078Uhc8SRs6.LA-@ds030607.mongolab.com:30607/Telvoy_MongoDb";
 
 
