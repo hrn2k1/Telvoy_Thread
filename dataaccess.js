@@ -774,8 +774,8 @@ Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : {
                  var minutesDiffFromEnd=minutesDiff(inv.EndTime,new Date());
                  var ttlReminderMinutes= RemainderMinute+minutesDiff(inv.EndTime,inv.InvTime);
 
-                 utility.log('minutesDiffFromEnd : '+minutesDiffFromEnd);
-                 utility.log('ttlReminderMinutes: '+ttlReminderMinutes);
+                 utility.log('minutesDiffFromEnd of UserID '+reg.UserID+' for '+ inv.Subject+ ': '+minutesDiffFromEnd);
+                 utility.log('ttlReminderMinutes of UserID '+reg.UserID+' for '+ inv.Subject+ ': '+ttlReminderMinutes);
                  if(minutesDiffFromEnd <= ttlReminderMinutes)
                  {
                    sendMeetingTile(pURL,reg.UserID,inv,TZ);
@@ -838,7 +838,7 @@ function sendMeetingTile(pURL,userID,inv,TZ)
   var InvSubjectLarge = inv.Subject.length <= 46?inv.Subject: inv.Subject.substring(0, 43) + '...';
   var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
   var meetingTime = moment(inv.InvTime.toISOString()).add('minutes', TZ * 60).format('hh:mm A');
-  utility.log('Local(client) Invitation Time: ' + meetingTime);
+  utility.log('Local(client) Invitation Time of UserID '+userID+' for '+ inv.Subject+': ' + meetingTime);
    var flipTileObj = {
                     'title' : 'telvoy', 
                     'backTitle' : 'telvoy',
