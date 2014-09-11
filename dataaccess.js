@@ -810,6 +810,11 @@ Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : {
 
 function  sendBlankTile(pURL,userID)
 {
+  if(pURL==null || pURL=='' || pURL=='undefined')
+  {
+     utility.log('Can not push Blank Tile to ' + userID +" bcz: Push URL is empty");
+     return;
+  }
 
    var flipTileObj = {
                     'title' : 'telvoy',
@@ -834,6 +839,12 @@ function  sendBlankTile(pURL,userID)
 
 function sendMeetingTile(pURL,userID,inv,TZ)
 {
+  if(pURL==null || pURL=='' || pURL=='undefined')
+  {
+     utility.log('Can not push Tile to ' + userID +" bcz: Push URL is empty");
+     return;
+  }
+  
   var invSubject = inv.Subject.length <= 23?inv.Subject: inv.Subject.substring(0, 20) + '...';
   var InvSubjectLarge = inv.Subject.length <= 46?inv.Subject: inv.Subject.substring(0, 43) + '...';
   var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
