@@ -150,7 +150,7 @@ if(connection==null) {
 
  EmailAddresses.findOne({"EmailID":entity.Forwarder,"Verified":true},function(senderError,sender){
  if(senderError){
-  utility.log('Error in finding sender email in whitelist','ERROR');
+  utility.log('Error in finding sender email in whitelist. Error: '+senderError,'ERROR');
   return;
  }
  else{
