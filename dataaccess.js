@@ -733,7 +733,7 @@ function PushTiles(connection){
   var Invitations = connection.collection('Invitations');
   var Registrations = connection.collection('Registrations');
 
-  Registrations.find().toArray( function(error, regs) {
+  Registrations.find().sort({TimeStamp:1}).toArray( function(error, regs) {
 
    if(error)
       {
