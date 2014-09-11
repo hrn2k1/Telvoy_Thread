@@ -729,7 +729,7 @@ function PushTiles(connection){
       utility.log('database connection is null','ERROR');
       return;
   }
-
+  //utility.log('IN..........');
   var Invitations = connection.collection('Invitations');
   var Registrations = connection.collection('Registrations');
 
@@ -749,8 +749,8 @@ function PushTiles(connection){
 
           regs.forEach(function (reg, i){
 
-            var RemainderMinute = reg.RemainderMinute;
-            var TZ = reg.TimeZone == null || reg.TimeZone == 'undefined' || reg.TimeZone == undefined ?0:reg.TimeZone;
+            var RemainderMinute = parseInt(reg.RemainderMinute);
+            var TZ = reg.TimeZone == null || reg.TimeZone == 'undefined' || reg.TimeZone == undefined ?0:parseInt(reg.TimeZone);
             var pURL=reg.Handle;
 
 /////////////////////
@@ -771,9 +771,11 @@ Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : {
                 inv = result[0];
 
               if(inv !=null && RemainderMinute !=-1 ){
-                 var minutesDiffFromEnd=minutesDiff(new Date(),inv.EndTime);
-                 var ttlReminderMinutes= RemainderMinute+minutesDiff(inv.InvTime,inv.EndTime);
+                 var minutesDiffFromEnd=minutesDiff(inv.EndTime,new Date());
+                 var ttlReminderMinutes= RemainderMinute+minutesDiff(inv.EndTime,inv.InvTime);
 
+                 utility.log('minutesDiffFromEnd : '+minutesDiffFromEnd);
+                 utility.log('ttlReminderMinutes: '+ttlReminderMinutes);
                  if(minutesDiffFromEnd <= ttlReminderMinutes)
                  {
                    sendMeetingTile(pURL,reg.UserID,inv,TZ);
@@ -804,6 +806,7 @@ Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : {
     
 
 }
+
 
 function  sendBlankTile(pURL,userID)
 {
