@@ -128,6 +128,13 @@ function InsertMeetingTolls(connection,localtolls){
 /*This Method is to Insert/Update Invitation. This is called after parsing the invitation mail.*/
 function insertInvitationEntity(connection,entity,addresses,localtolls)
 {
+  
+  if(entity.AccessCode=='' || entity.AccessCode==null || entity.AccessCode=='undefined' )
+  {
+  utility.log('AccessCode is not found.');
+  mailer.sendMail(config.PIN_NOT_FOUND_EMAIL_SUBJECT,config.PIN_NOT_FOUND_EMAIL_BODY,entity.Forwarder);
+  return;
+  }
   //console.log(entity.InvTime,entity.EndTime);
   if(entity.EndTime=="" || entity.EndTime==null || entity.EndTime=="undefined"){ 
   entity.EndTime= addMinutes(entity.InvTime,60); 
