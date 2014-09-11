@@ -753,6 +753,13 @@ function PushTiles(connection){
             var TZ = reg.TimeZone == null || reg.TimeZone == 'undefined' || reg.TimeZone == undefined ?0:parseInt(reg.TimeZone);
             var pURL=reg.Handle;
 
+ if(pURL==null || pURL=='' || pURL=='undefined')
+  {
+     utility.log('Can not push Live Tile to ' + reg.UserID +" bcz: Push URL is empty.");
+    
+  }
+  else
+  {
 /////////////////////
 
 Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : { UserID : reg.UserID } } }, { Attendees : 0 }).sort({ InvTime: 1 }).limit(1).toArray(
@@ -796,7 +803,7 @@ Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : {
 
 });
 //////////////////
-
+}
 
 
           });
