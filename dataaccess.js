@@ -749,7 +749,7 @@ function PushTiles(connection){
 
           regs.forEach(function (reg, i){
 
-            var RemainderMinute = parseInt(reg.RemainderMinute);
+            var RemainderMinute = parseInt(reg.RemainderMinute)+1;
             var TZ = reg.TimeZone == null || reg.TimeZone == 'undefined' || reg.TimeZone == undefined ?0:parseInt(reg.TimeZone);
             var pURL=reg.Handle;
 
