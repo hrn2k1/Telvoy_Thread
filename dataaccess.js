@@ -769,7 +769,7 @@ function PushTiles(connection){
   {
 /////////////////////
 
-Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : { UserID : reg.UserID } } }, { Attendees : 0 }).sort({ InvTime: 1 }).limit(1).toArray(
+Invitations.find({ EndTime : { $gte : addMinutes(new Date(), -15) }, Attendees : { $elemMatch : { UserID : reg.UserID } } }, { Attendees : 0 }).sort({ InvTime: 1 }).limit(2).toArray(
      function (error, result) {
         if (error) {
             utility.log("Invitations find for send tile error: " + error, 'ERROR');
@@ -779,18 +779,31 @@ Invitations.find({ EndTime : { $gte : new Date() }, Attendees : { $elemMatch : {
             utility.log("Recent Invitation for user " + reg.UserID);
             utility.log(result);
             var inv = null;
+            var invNext = null;
+            var mdd=15;
             if (result == null || result.length == 0)
                 inv = null;
             else
                 inv = result[0];
-
+            if(result !=null && result.length >=2)
+            {
+            invNext=result[1];
+             var nextRT=addMinutes(invNext.InvTime,-RemainderMinute);
+              var md1=minutesDiff(nextRT,inv.EndTime);
+              if(md1>0 && md1 <=15 )
+              mdd=md1;
+              else
+              mdd=15;
+            }
+            else
+            mdd=15;
               if(inv !=null && RemainderMinute !=-1 ){
                  var minutesDiffFromEnd=minutesDiff(inv.EndTime,new Date());
                  var ttlReminderMinutes= RemainderMinute+minutesDiff(inv.EndTime,inv.InvTime);
 
                  utility.log('minutesDiffFromEnd of UserID '+reg.UserID+' for '+ inv.Subject+ ': '+minutesDiffFromEnd);
                  utility.log('ttlReminderMinutes of UserID '+reg.UserID+' for '+ inv.Subject+ ': '+ttlReminderMinutes);
-                 if(minutesDiffFromEnd <= ttlReminderMinutes)
+                 if( minutesDiffFromEnd>=-mdd && minutesDiffFromEnd <= ttlReminderMinutes)
                  {
                    sendMeetingTile(pURL,reg.UserID,inv,TZ);
                  }
