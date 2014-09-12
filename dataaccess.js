@@ -881,7 +881,7 @@ function sendMeetingTile(pURL,userID,inv,TZ)
                     'title' : 'telvoy', 
                     'backTitle' : 'telvoy',
                     'backContent' : backHeader + '\n' + invSubject + '\n' + meetingTime,
-                    'wideBackContent': backHeader + '\n' + InvSubjectLarge + '\n' + meetingTime,
+                    'wideBackContent': backHeader + '\n' + InvSubject + '\n' + meetingTime,
                     'backBackgroundImage': "Images/logoBackX336.png",
                     'wideBackBackgroundImage': "Images/logoBackX691.png"
                 };
