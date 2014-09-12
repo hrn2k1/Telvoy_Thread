@@ -873,7 +873,7 @@ function sendMeetingTile(pURL,userID,inv,TZ)
   }
   
   var invSubject = inv.Subject.length <= 23?inv.Subject: inv.Subject.substring(0, 20) + '...';
-  var InvSubjectLarge = inv.Subject.length <= 46?inv.Subject: inv.Subject.substring(0, 43) + '...';
+  var InvSubjectLarge = inv.Subject.length <= 40?inv.Subject: inv.Subject.substring(0, 37) + '...';
   var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
   var meetingTime = moment(inv.InvTime.toISOString()).add('minutes', TZ * 60).format('hh:mm A');
   utility.log('Local(client) Invitation Time of UserID '+userID+' for '+ inv.Subject+': ' + meetingTime);
