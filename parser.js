@@ -277,7 +277,7 @@ function parseString(str, delimiter, endMarker, allowFuzzy, usePattern)
   },
   {
     keyword: 'code',   //TODO: renameto'access code'
-    alts: 'code|meeting number|access code',
+    alts: 'code|meeting number|meeting id|access code',
     pattern: '[0-9]+',
     fuzzy: true,
   },
