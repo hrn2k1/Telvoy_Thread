@@ -129,7 +129,7 @@ function InsertMeetingTolls(connection,localtolls){
 function insertInvitationEntity(connection,entity,addresses,localtolls)
 {
   
-  if(entity.AccessCode=='' || entity.AccessCode==null || entity.AccessCode=='undefined' )
+  if(entity.AccessCode=='' || entity.AccessCode==null || entity.AccessCode=='undefined' || entity.AccessCode==undefined )
   {
   utility.log('AccessCode is not found.');
   mailer.sendMail(config.PIN_NOT_FOUND_EMAIL_SUBJECT,config.PIN_NOT_FOUND_EMAIL_BODY,entity.Forwarder);
