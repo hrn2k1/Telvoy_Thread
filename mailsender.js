@@ -4,6 +4,9 @@ var debug = config.IS_DEBUG_MODE;
 var nodemailer = require("nodemailer");
 function sendMail(subject,msg,recipients)
 {
+	
+if(subject==null || subject.trim()=='' || subject==undefined || msg==null || msg.trim()=='' || msg==undefined )
+ return;
  
   try{   
     var smtp={
