@@ -7,7 +7,7 @@ var dao=require('./dataaccess.js');
 var utility=require('./utility.js');
 var mimelib = require("mimelib-noiconv");
 var parser=require('./parser.js');
-
+var mailer= require('./mailsender.js');
 // var isUser = {}
 // var urlRegExp = new RegExp('https?://[-!*\'();:@&=+$,/?#\\[\\]A-Za-z0-9_.~%]+');
 
@@ -145,20 +145,20 @@ mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connecti
   else
   {
         dbConnection=connection;
-        //checkMails();
-        //setInterval(function() {
-        //utility.log('Pulling Invitation..');
-        //checkMails();
-        //}, duration);
+        checkMails();
+        setInterval(function() {
+        utility.log('Pulling Invitation..');
+        checkMails();
+        }, duration);
 
         
         //utility.log(NotificationRemainderDuration);
 
-        //SendEligibleNotifications();
-        //setInterval(function(){
+        SendEligibleNotifications();
+        setInterval(function(){
         //utility.log('Sending Notification...');
-        //SendEligibleNotifications();
-        //},NotificationRemainderDuration-100);
+        SendEligibleNotifications();
+        },NotificationRemainderDuration-100);
 
  }
 });
@@ -193,7 +193,7 @@ function checkMails() {
                 return;
             }
 
-            imap.search([ config.EMAIL_PULL_CRITERIA, ['SINCE', 'June 01, 2013'] ], function(err, results) {
+            imap.search([ config.EMAIL_PULL_CRITERIA, ['SINCE', 'June 01, 2014'] ], function(err, results) {
                 if(debug==true)
                 utility.log('IMAP Search '+'Error:'+inspect(err, false, Infinity)+' Results:'+inspect(results, false, Infinity),'GENERAL');
                 
@@ -235,13 +235,19 @@ function fetchMailProcess(fetch) {
 
         mailParser.on('end', function(mail) {
             var out = parser.parseMail(mail);
+            var fwdr=utility.isNull(getForwader(mail),'');
             if (!out)
             {
                 utility.log('Cannot Parse mail');
                 return;
             }
                 
-
+            if(out['from']==undefined || out['to']==undefined)
+            {
+              utility.log('Attendees(from, to) are not found.');
+              mailer.sendMail("Telvoy Parse Error","Your forwarded mail(body or calendar attached) doesn't contain meeting organizer or attendees for '"+out['subject']+"'\nOnly English mail body text is taken to parse.",fwdr);
+              return;
+            }
             out['fetch'] = "success";
             PARSE_RES = out;
             var addressStr = replaceAll(';', ',', out['to']); //'jack@smart.com, "Development, Business" <bizdev@smart.com>';
@@ -298,7 +304,7 @@ function fetchMailProcess(fetch) {
          var entity = {
                 ToEmails : emailsto,
                 FromEmail: utility.isNull(out['from'],''),
-                Forwarder: utility.isNull(getForwader(mail),''),
+                Forwarder: utility.isNull(fwdr,''),
                 InvDate : utility.convertToDate(utility.isNull(out['date'],'')), // new Date(Date.parse(utility.isNull(out['date'],''))),
                 InvTime : utility.convertToDateTime(utility.isNull(out['date'],''),utility.isNull(out['time'],'')),
                 EndTime: utility.isNull(out['endtime'],''),
