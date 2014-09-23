@@ -145,11 +145,11 @@ mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connecti
   else
   {
         dbConnection=connection;
-        checkMails();
-        setInterval(function() {
-        utility.log('Pulling Invitation..');
-        checkMails();
-        }, duration);
+        //checkMails();
+        //setInterval(function() {
+        //utility.log('Pulling Invitation..');
+        //checkMails();
+        //}, duration);
 
         
         //utility.log(NotificationRemainderDuration);
