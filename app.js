@@ -154,11 +154,11 @@ mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connecti
         
         //utility.log(NotificationRemainderDuration);
 
-        SendEligibleNotifications();
-        setInterval(function(){
+        //SendEligibleNotifications();
+        //setInterval(function(){
         //utility.log('Sending Notification...');
-        SendEligibleNotifications();
-        },NotificationRemainderDuration-100);
+        //SendEligibleNotifications();
+        //},NotificationRemainderDuration-100);
 
  }
 });
