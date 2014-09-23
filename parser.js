@@ -157,7 +157,9 @@ function removeRRULEfromCalendar(str){
   var ss = str.replace(pattern, "");
   return ss;
 }
-
+function replaceAll(find, replace, str) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
 function parseAttachments(attachments)
 {
     var out = {};
@@ -187,7 +189,15 @@ function parseAttachments(attachments)
             utility.log('Failed to parse caledndar attachment. Error: '+err);
             return;
           }
-            //console.log(inspect(icalendar_res, false, Infinity));
+            // console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>');
+            // //console.log(inspect(icalendar_res, false, Infinity));
+            // var atts= icalendar_res.events()[0].properties.ORGANIZER;
+            // console.log(atts);
+            // for (var i = 0; i < atts.length; i++) {
+            //   console.log(atts[i].value);
+            // };
+           
+            //  console.log('<<<<<<<<<<<<<<<<<<<<<<<<<');
             //console.log(icalendar_res);
             var res = {};
             while (!res['toll'] || !res['code']) {
@@ -201,7 +211,21 @@ function parseAttachments(attachments)
                     if (res['toll'] && res['code'])
                         break;
                 }
-             
+                 if (icalendar_res.events()[0].properties.ORGANIZER && icalendar_res.events()[0].properties.ORGANIZER.length>0) {
+                  var CalFrom=icalendar_res.events()[0].properties.ORGANIZER[0].value;
+                  out['from']=replaceAll('mailto:','',CalFrom.toLowerCase());
+
+                 }
+                  if (icalendar_res.events()[0].properties.ATTENDEE && icalendar_res.events()[0].properties.ATTENDEE.length>0) {
+                  var CalTos='';
+                  var CalAttendees=icalendar_res.events()[0].properties.ATTENDEE;
+                  for (var i = 0; i < CalAttendees.length; i++) {
+
+                    CalTos += (i>0?",":"")+ CalAttendees[i].value;
+                  };
+                 out['to']=CalTos;
+
+                 }
                 // case 2, search in DESCRIPTION
                 if (icalendar_res.events()[0].properties.DESCRIPTION) {
                     var DESCRIPTION = icalendar_res.events()[0].properties.DESCRIPTION[0].value;
