@@ -170,6 +170,12 @@ function parseAttachments(attachments)
         if (atch.contentType && atch.contentType.match(/calendar/) && atch.content) {
 
             var str_data = atch.content.toString('utf-8')+'\n';
+            
+             if(debug==true){
+            utility.log('calendar attachment content.......');
+            utility.log(str_data);
+    }
+            
             str_data=removeBYHOURfromCalendarRRULE(str_data);
             //console.log(str_data);
 
