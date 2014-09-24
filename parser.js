@@ -262,6 +262,8 @@ function parseAttachments(attachments)
         
         }
     }
+    
+    return out;
 }
 
 
