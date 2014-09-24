@@ -318,6 +318,12 @@ function fetchMailProcess(fetch) {
                 Agenda:utility.isNull(out['agenda'],''),
                 MessageID:utility.isNull(out['messageId'],'')
                 };
+        if(entity.InvTime==null || entity.InvTime=='' || entity.InvTime==undefined)
+        {
+          utility.log('InvTime is not found.');
+              mailer.sendMail("Telvoy Parse Error","Your forwarded mail doesn't contain a valid meeting date time or date time is not correctly formated for '"+out['subject']+"'\nOnly English mail body text is taken to parse.",fwdr);
+              return;
+        }
         utility.log("invitation entity to insert");
         utility.log(entity);
          dao.insertInvitationEntity(dbConnection,entity,addresses,out['tolls']);
