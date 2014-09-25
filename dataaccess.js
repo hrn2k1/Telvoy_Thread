@@ -733,7 +733,7 @@ function sendTile(connection,userID,objReg,callback) {
 function PushTiles(connection){
 
    if(connection == null) {
-      utility.log('database connection is null','ERROR');
+      utility.log('database connection is null','PUSH_ERROR');
       return;
   }
   //utility.log('IN..........');
@@ -744,14 +744,14 @@ function PushTiles(connection){
 
    if(error)
       {
-          utility.log("find registrations error: " + error, 'ERROR');
+          utility.log("find registrations error: " + error, 'PUSH_ERROR');
       }
       else
       {
         if(debug == true)
           {
-            utility.log('Invitees Push URL Info' );
-            utility.log(regs);
+            utility.log('Invitees Push URL Info','PUSH_NORMAL' );
+            utility.log(regs,'PUSH_NORMAL');
           }
 
           regs.forEach(function (reg, i){
@@ -762,7 +762,7 @@ function PushTiles(connection){
 
  if(pURL==null || pURL=='' || pURL=='undefined')
   {
-     utility.log('Can not push Live Tile to ' + reg.UserID +" bcz: Push URL is empty.");
+     utility.log('Can not push Live Tile to ' + reg.UserID +" bcz: Push URL is empty.",'PUSH_NORMAL');
     
   }
   else
@@ -772,11 +772,11 @@ function PushTiles(connection){
 Invitations.find({ EndTime : { $gte : addMinutes(new Date(), -15) }, Attendees : { $elemMatch : { UserID : reg.UserID } } }, { Attendees : 0 }).sort({ InvTime: 1 }).limit(2).toArray(
      function (error, result) {
         if (error) {
-            utility.log("Invitations find for send tile error: " + error, 'ERROR');
+            utility.log("Invitations find for send tile error: " + error, 'PUSH_ERROR');
             //if (callback != null) callback(error, null);
         }
           else {
-            utility.log("Recent Invitation for user " + reg.UserID);
+            utility.log("Recent Invitation for user " + reg.UserID,'PUSH_NORMAL');
             utility.log(result);
             var inv = null;
             var invNext = null;
@@ -801,8 +801,8 @@ Invitations.find({ EndTime : { $gte : addMinutes(new Date(), -15) }, Attendees :
                  var minutesDiffFromEnd=minutesDiff(inv.EndTime,new Date());
                  var ttlReminderMinutes= RemainderMinute+minutesDiff(inv.EndTime,inv.InvTime);
 
-                 utility.log('minutesDiffFromEnd of UserID '+reg.UserID+' for '+ inv.Subject+ ': '+minutesDiffFromEnd);
-                 utility.log('ttlReminderMinutes of UserID '+reg.UserID+' for '+ inv.Subject+ ': '+ttlReminderMinutes);
+                 utility.log('minutesDiffFromEnd of UserID '+reg.UserID+' for '+ inv.Subject+ ': '+minutesDiffFromEnd,'PUSH_NORMAL');
+                 utility.log('ttlReminderMinutes of UserID '+reg.UserID+' for '+ inv.Subject+ ': '+ttlReminderMinutes,'PUSH_NORMAL');
                  if( minutesDiffFromEnd>=-mdd && minutesDiffFromEnd <= ttlReminderMinutes)
                  {
                    sendMeetingTile(pURL,reg.UserID,inv,TZ);
@@ -839,7 +839,7 @@ function  sendBlankTile(pURL,userID)
 {
   if(pURL==null || pURL=='' || pURL=='undefined')
   {
-     utility.log('Can not push Blank Tile to ' + userID +" bcz: Push URL is empty");
+     utility.log('Can not push Blank Tile to ' + userID +" bcz: Push URL is empty",'PUSH_NORMAL');
      return;
   }
 
@@ -852,14 +852,14 @@ function  sendBlankTile(pURL,userID)
                     'wideBackBackgroundImage': "Images/logoBackX691.png"
                 };
 
-    utility.debug('Blank Tile Object to send');
-    utility.debug(flipTileObj);
+    utility.debug('Blank Tile Object to send','PUSH_NORMAL');
+    utility.debug(flipTileObj,'PUSH_NORMAL');
     mpns.sendFlipTile(pURL, flipTileObj, function (error, result) {
 
       if(!error)
-        utility.log('Pushed Blank Tile to ' + userID );
+        utility.log('Pushed Blank Tile to ' + userID ,'PUSH_NORMAL');
       else
-        utility.log('Can not push Blank Tile to ' + userID +" Error: "+error);
+        utility.log('Can not push Blank Tile to ' + userID +" Error: "+error,'PUSH_NORMAL');
         
     });
 }
@@ -868,7 +868,7 @@ function sendMeetingTile(pURL,userID,inv,TZ)
 {
   if(pURL==null || pURL=='' || pURL=='undefined')
   {
-     utility.log('Can not push Tile to ' + userID +" bcz: Push URL is empty");
+     utility.log('Can not push Tile to ' + userID +" bcz: Push URL is empty",'PUSH_NORMAL');
      return;
   }
   
@@ -876,7 +876,7 @@ function sendMeetingTile(pURL,userID,inv,TZ)
   var InvSubjectLarge = inv.Subject.length <= 46?inv.Subject: inv.Subject.substring(0, 43) + '...';
   var backHeader = moment(inv.InvTime).date() == moment().date() ? 'TODAY ' : 'TOMORROW ';
   var meetingTime = moment(inv.InvTime.toISOString()).add('minutes', TZ * 60).format('hh:mm A');
-  utility.log('Local(client) Invitation Time of UserID '+userID+' for '+ inv.Subject+': ' + meetingTime);
+  utility.log('Local(client) Invitation Time of UserID '+userID+' for '+ inv.Subject+': ' + meetingTime,'PUSH_NORMAL');
    var flipTileObj = {
                     'title' : 'telvoy', 
                     'backTitle' : 'telvoy',
@@ -885,14 +885,14 @@ function sendMeetingTile(pURL,userID,inv,TZ)
                     'backBackgroundImage': "Images/logoBackX336.png",
                     'wideBackBackgroundImage': "Images/logoBackX691.png"
                 };
-    utility.debug('Tile Object to send');
-    utility.debug(flipTileObj);
+    utility.debug('Tile Object to send','PUSH_NORMAL');
+    utility.debug(flipTileObj,'PUSH_NORMAL');
     mpns.sendFlipTile(pURL, flipTileObj, function (error, result) {
 
       if(!error)
-        utility.log('Pushed Tile to ' + userID + " for " + inv.Subject);
+        utility.log('Pushed Tile to ' + userID + " for " + inv.Subject,'PUSH_NORMAL');
       else
-        utility.log('Can not push Tile to ' + userID + " for " + inv.Subject+" Error: "+error);
+        utility.log('Can not push Tile to ' + userID + " for " + inv.Subject+" Error: "+error,'PUSH_NORMAL');
         
     });
 }
