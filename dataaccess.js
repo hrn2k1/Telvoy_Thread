@@ -777,7 +777,7 @@ Invitations.find({ EndTime : { $gte : addMinutes(new Date(), -15) }, Attendees :
         }
           else {
             utility.log("Recent Invitation for user " + reg.UserID,'PUSH_NORMAL');
-            utility.log(result);
+            utility.log(result,'PUSH_NORMAL');
             var inv = null;
             var invNext = null;
             var mdd=15;
