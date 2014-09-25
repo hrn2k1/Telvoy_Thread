@@ -247,7 +247,7 @@ function fetchMailProcess(fetch) {
               mailer.sendMail("Telvoy Parse Error","Your forwarded mail(body or calendar attached) doesn't contain meeting number or id or pin code for '"+out['subject']+"'\nOnly English mail body text is taken to parse.",fwdr);
               return; 
             }
-            }
+            
             if(out['from']==undefined || out['to']==undefined || utility.isNull(out['from'],'')=='' || utility.isNull(out['to'],'')=='')
             {
               utility.log('Attendees(from, to) are not found.');
