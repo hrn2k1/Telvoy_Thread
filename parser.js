@@ -8,7 +8,15 @@ var utility=require('./utility.js');
 var debug = config.IS_DEBUG_MODE;
 
 
-
+function hasValue(obj)
+{
+     if(obj==null || obj==undefined)
+     return false;
+     else if(obj.trim()=='' || obj.trim()=='undefined')
+     return false;
+     
+     return true;
+}
 function parseMail(mail)
 {
      //utility.log("<Header......................");
@@ -36,24 +44,24 @@ function parseMail(mail)
             utility.log(out_body);
     }
 
-     out["subject"]=    out_attach["subject"]   !=null  ?   out_attach["subject"]   :   out_body["subject"];
-     out["provider"]=   out_attach["provider"]  !=null  ?   out_attach["provider"]  :   out_body["provider"];
-     out["toll"]=       out_attach["toll"]      !=null  ?   out_attach["toll"]      :   out_body["toll"];
-     out["code"]=       out_attach["code"]      !=null  ?   out_attach["code"]      :   out_body["code"];
-     out["password"]=   out_attach["password"]  !=null  ?   out_attach["password"]  :   out_body["password"];
-     out["pin"]=        out_attach["pin"]       !=null  ?   out_attach["pin"]       :   out_body["pin"];
-     out["date"]=       out_attach["date"]      !=null  ?   out_attach["date"]      :   out_body["date"];
-     out["time"]=       out_attach["time"]      !=null  ?   out_attach["time"]      :   out_body["time"];
-     out["endtime"]=    out_attach["endtime"]   !=null  ?   out_attach["endtime"]   :   out_body["endtime"];
-     out["from"]=       out_attach["from"]      !=null  ?   out_attach["from"]      :   out_body["from"];
-     out["to"]=         out_attach["to"]        !=null  ?   out_attach["to"]        :   out_body["to"];
-     out["agenda"]=     out_attach["agenda"]    !=null  ?   out_attach["agenda"]    :   out_body["agenda"];
-     out["from"]=       out_attach["from"]      !=null  ?   out_attach["from"]      :   out_body["from"];
+     out["subject"]=    hasValue(out_attach["subject"])==true    ?   out_attach["subject"]   :   out_body["subject"];
+     out["provider"]=   hasValue(out_attach["provider"])==true   ?   out_attach["provider"]  :   out_body["provider"];
+     out["toll"]=       hasValue(out_attach["toll"])==true       ?   out_attach["toll"]      :   out_body["toll"];
+     out["code"]=       hasValue(out_attach["code"])==true       ?   out_attach["code"]      :   out_body["code"];
+     out["password"]=   hasValue(out_attach["password"])==true   ?   out_attach["password"]  :   out_body["password"];
+     out["pin"]=        hasValue(out_attach["pin"])==true        ?   out_attach["pin"]       :   out_body["pin"];
+     out["date"]=       hasValue(out_attach["date"])==true       ?   out_attach["date"]      :   out_body["date"];
+     out["time"]=       hasValue(out_attach["time"])==true       ?   out_attach["time"]      :   out_body["time"];
+     out["endtime"]=    hasValue(out_attach["endtime"])==true    ?   out_attach["endtime"]   :   out_body["endtime"];
+     out["from"]=       hasValue(out_attach["from"])==true       ?   out_attach["from"]      :   out_body["from"];
+     out["to"]=         hasValue(out_attach["to"])==true         ?   out_attach["to"]        :   out_body["to"];
+     out["agenda"]=     hasValue(out_attach["agenda"])==true     ?   out_attach["agenda"]    :   out_body["agenda"];
+     out["from"]=       hasValue(out_attach["from"])==true       ?   out_attach["from"]      :   out_body["from"];
      out['messageId']=  mail.messageId;
      out['tolls']= out_attach["tolls"]!=null && out_attach["tolls"].length>0  ? out_attach["tolls"] : out_body["tolls"];
-     if(out['toll']==null || out['toll']=='undefined')
+     if(out['toll']==null || out['toll']=='undefined'|| out['toll']==undefined)
      {
-        if(out["tolls"]!=null && out["tolls"] !='undefined' && out["tolls"].length>0)
+        if(out["tolls"]!=null && out["tolls"] !=undefined && out["tolls"] !='undefined' && out["tolls"].length>0)
             out['toll']=out['tolls'][0].Number;
      }
 
@@ -83,7 +91,7 @@ function parseBody(mail)
     //console.log(inspect(mail));
     var out = null;
     if (mail.text) {
-        utility.log('##### fallback to parsing text BODY ######');
+        utility.log('##### Parsing text BODY ######');
         var bodytext=remove1stDateOfBody(mail.text.replace('Sent:','Date:'));
         //var bodytext=remove1stDateOfBody(mail.text);
         //console.log(bodytext);
@@ -91,7 +99,7 @@ function parseBody(mail)
          //console.log(out);
         //out["body"] = mail.text;
     } else if (mail.html) {
-        utility.log('##### fallback to parsing html BODY ######');
+        utility.log('##### Parsing html BODY ######');
         var text = mail.html.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>?|&nbsp;/gi, '');
         out = parseString(text, ':', '\n', true, false);
         //console.log(out);
@@ -100,7 +108,8 @@ function parseBody(mail)
         return null;
     }
 
-    out["subject"] = mail.subject;
+     if(hasValue(out["subject"])==false)
+          out["subject"] = mail.subject;
     
 
     return out;
@@ -235,7 +244,11 @@ function parseAttachments(attachments)
                     if (res['toll'] && res['code'])
                         break;
                 }
+                if (icalendar_res.events()[0].properties.SUMMARY && icalendar_res.events()[0].properties.SUMMARY.length>0) {
+                  var CalSubject=icalendar_res.events()[0].properties.SUMMARY[0].value;
+                  out['subject']=CalSubject;
 
+                 }
                 break;
             }
 
@@ -253,7 +266,7 @@ function parseAttachments(attachments)
             out['date'] = date_split.slice(0, 4).join(" ");
             out['time'] = date;//date_split.slice(4).join(" ");;
             out['endtime']=dateEnd;
-            out['subject'] = icalendar_res.events()[0].properties.SUMMARY[0].value;
+           
             //utility.log('B4 return in parse attachment');
             utility.log(out);
             return out;
