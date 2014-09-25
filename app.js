@@ -241,8 +241,14 @@ function fetchMailProcess(fetch) {
                 utility.log('Cannot Parse mail');
                 return;
             }
-                
-            if(out['from']==undefined || out['to']==undefined)
+            if(out['code']==undefined || utility.isNull(out['code'],'')=='')   
+            {
+              utility.log('AccessCode is not found.');
+              mailer.sendMail("Telvoy Parse Error","Your forwarded mail(body or calendar attached) doesn't contain meeting number or id or pin code for '"+out['subject']+"'\nOnly English mail body text is taken to parse.",fwdr);
+              return; 
+            }
+            }
+            if(out['from']==undefined || out['to']==undefined || utility.isNull(out['from'],'')=='' || utility.isNull(out['to'],'')=='')
             {
               utility.log('Attendees(from, to) are not found.');
               mailer.sendMail("Telvoy Parse Error","Your forwarded mail(body or calendar attached) doesn't contain meeting organizer or attendees for '"+out['subject']+"'\nOnly English mail body text is taken to parse.",fwdr);
