@@ -18,10 +18,13 @@ function replaceAll(find, replace, str) {
 function log(msg,type){
     //if(config.IS_DEBUG_MODE==false) return;
 
+
     var log_filename= replaceAll('-','',new Date().toISOString().split('T')[0])+'.log';
     //console.log(log_filename);
 if(type==null || type=='undefined' )
     type='NORMAL';
+if( type.indexOf('PUSH') > -1)
+log_filename= replaceAll('-','',new Date().toISOString().split('T')[0])+'_tile'+'.log';
 var dt=new Date();
 if(typeof(msg)=='object')
     msg=JSON.stringify(msg);
@@ -42,6 +45,8 @@ function logOnly(msg,type){
     //console.log(log_filename);
 if(type==null || type=='undefined' )
     type='NORMAL';
+ if( type.indexOf('PUSH') > -1)
+log_filename= replaceAll('-','',new Date().toISOString().split('T')[0])+'_tile'+'.log';
 var dt=new Date();
 if(typeof(msg)=='object')
     msg=JSON.stringify(msg);
@@ -60,6 +65,8 @@ if(config.IS_DEBUG_MODE==false) return;
 var log_filename= replaceAll('-','',new Date().toISOString().split('T')[0])+'.log';
 if(type==null || type=='undefined' )
     type='NORMAL';
+ if( type.indexOf('PUSH') > -1)
+log_filename= replaceAll('-','',new Date().toISOString().split('T')[0])+'_tile'+'.log';
 var dt=new Date();
 if(typeof(msg)=='object')
     msg=JSON.stringify(msg);
