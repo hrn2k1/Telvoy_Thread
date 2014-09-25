@@ -164,7 +164,7 @@ mongo.MongoClient.connect(config.MONGO_CONNECTION_STRING, function(err, connecti
 });
 
 function SendEligibleNotifications(){
-     utility.log('Sending Notification...');
+     utility.log('Sending Notification...','PUSH_NORMAL');
     //dao.PushNotification(dbConnection,NotificationRemainderDuration);
     dao.PushTiles(dbConnection);
 }
