@@ -12,7 +12,7 @@ function hasValue(obj)
 {
      if(obj==null || obj==undefined)
      return false;
-     else if(obj.trim()=='' || obj.trim()=='undefined')
+     else if(obj.toString().trim()=='' || obj.toString().trim()=='undefined')
      return false;
      
      return true;
@@ -32,17 +32,17 @@ function parseMail(mail)
     if (mail.attachments)
     {
         out_attach = parseAttachments(mail.attachments);
-         if(debug==true){
-            utility.log('attachment parse result.......');
-            utility.log(out_attach);}
-    }
+     
+     utility.log('attachment parse result.......');
+     utility.log(out_attach);}
+    
 
     //if (!out)
       out_body = parseBody(mail);
-      if(debug==true){
-            utility.log('body parse result.......');
-            utility.log(out_body);
-    }
+    
+     utility.log('body parse result.......');
+     utility.log(out_body);
+    
 
      out["subject"]=    hasValue(out_attach["subject"])==true    ?   out_attach["subject"]   :   out_body["subject"];
      out["provider"]=   hasValue(out_attach["provider"])==true   ?   out_attach["provider"]  :   out_body["provider"];
@@ -268,7 +268,7 @@ function parseAttachments(attachments)
             out['endtime']=dateEnd;
            
             //utility.log('B4 return in parse attachment');
-            utility.log(out);
+            //utility.log(out);
             return out;
 
 
